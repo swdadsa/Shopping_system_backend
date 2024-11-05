@@ -1,7 +1,7 @@
 {
-  "name": "panshuo_ntp_backend",
+  "name": "erp_system_backend",
   "version": "1.0.0",
-  "description": "磐碩後端",
+  "description": "erp系統後端",
   "main": "app.js",
   "scripts": {
     "build": "npx tsc",
