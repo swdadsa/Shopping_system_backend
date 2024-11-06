@@ -6,17 +6,23 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
-    "dev": "nodemon app.ts"
+    "dev": "nodemon app.ts",
+    "migrate": "sequelize-cli db:migrate --config dist/config/config.js",
+    "migrate:undo": "sequelize-cli db:migrate:undo --config dist/config/config.js",
+    "seed": "sequelize-cli db:seed:all --config dist/config/config.js",
+    "seed:undo": "sequelize-cli db:seed:undo --config dist/config/config.js"
   },
   "author": "10331",
   "license": "ISC",
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/sequelize": "^4.28.20",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "joi": "^17.13.3",
-    "sequelize": "^6.37.4",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
     "tedious": "^18.6.1",
     "winston": "^3.15.0"
   },
@@ -27,5 +33,11 @@
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
+  },
+  "sequelize-cli": {
+    "config": "dist/config/config.ts",
+    "models-path": "dist/src/models",
+    "migrations-path": "dist/src/migrations",
+    "seeders-path": "dist/src/seeders"
   }
 }
