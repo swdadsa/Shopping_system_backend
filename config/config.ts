@@ -20,7 +20,7 @@ export const development = {
     password: "ShiCheng1999$",
     database: "ERP",
     host: "localhost",
-    dialect: "mssql" as Dialect,
+    dialect: "mysql" as Dialect,
     migrationStoragePath: "src/migrations",
     seederStoragePath: "src/seeders",
     ssl: {

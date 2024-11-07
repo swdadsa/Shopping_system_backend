@@ -1,0 +1,8 @@
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('config/config.ts'), // 指定設定檔
+  'models-path': path.resolve('src/models'), // 模型路徑
+  'migrations-path': path.resolve('dist/src/migrations'), // 遷移路徑
+  'seeders-path': path.resolve('src/seeders'), // 種子資料路徑
+};
