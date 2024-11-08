@@ -2,30 +2,24 @@ import { DataTypes, Sequelize } from "sequelize";
 
 export default {
   up: async (queryInterface: any) => {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("User_token", {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      username: {
+      user_id: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
+      token: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      permissions: {
-        type: DataTypes.TINYINT,
-        allowNull: false,
-        defaultValue: 1
+      expiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -45,6 +39,6 @@ export default {
   },
 
   down: async (queryInterface: any) => {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("User_token");
   }
 };

@@ -23,6 +23,7 @@ export const development = {
     dialect: "mysql" as Dialect,
     migrationStoragePath: "src/migrations",
     seederStoragePath: "src/seeders",
+    timezone: '+08:00',
     ssl: {
         rejectUnauthorized: false // 忽略 SSL 驗證
     }

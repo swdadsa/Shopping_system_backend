@@ -7,10 +7,28 @@ export class logger {
     logger = winston
 
     error(message: any) {
+        let time = this.Date.getFullYear() + '-' + (this.Date.getMonth() + 1) + '-' + this.Date.getDate() + ' ' + this.Date.getHours() + ':' + this.Date.getMinutes() + ':' + this.Date.getSeconds();
         this.logger.createLogger({
             level: 'error',
             format: winston.format.combine(
-                winston.format.timestamp(),
+                winston.format.timestamp({
+                    format: () => {
+                        const now = new Date();
+                        // 格式化為本地時間 "YYYY-MM-DD HH:mm:ss"
+                        return now.toLocaleString('zh-TW', {
+                            timeZone: 'Asia/Taipei',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        }).replace(/\//g, '-');  // 替換斜線為破折號
+                    }
+                }),
+                winston.format.printf(({ timestamp, level, message }) => {
+                    return `[${timestamp}] ${level}: ${message}`;
+                }),
                 winston.format.json()
             ),
             transports: [
