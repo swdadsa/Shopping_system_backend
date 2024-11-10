@@ -9,6 +9,10 @@ import User_token from "../models/User_token";
 export default class account {
     public apiResponse = new apiResponse
 
+    test(req: Request, res: Response) {
+        res.send("test")
+    }
+
     // 登入
     async signIn(req: Request, res: Response) {
         const { username, password } = req.body;
@@ -41,7 +45,7 @@ export default class account {
                 const queryCreateTokenRecord = await User_token.create({
                     "user_id": output.id,
                     "token": hashedToken,
-                    "expiredAt": Date.now()
+                    "expiredAt": Date.now() + 30 * 60 * 1000 // Add 10 minutes
                 })
                 res.send(this.apiResponse.response(true, output))
             }

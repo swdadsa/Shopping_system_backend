@@ -26,6 +26,6 @@ export const development = {
     timezone: '+08:00',
     ssl: {
         rejectUnauthorized: false // 忽略 SSL 驗證
-    }
+    },
 };
 

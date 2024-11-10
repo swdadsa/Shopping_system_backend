@@ -2,6 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 import { development } from '../../config/config'
 
 var sequelize = new Sequelize(development.database, development.username, development.password, {
+    timezone: development.timezone,
     dialect: development.dialect,
     dialectOptions: {
         // Your mysql2 options here
