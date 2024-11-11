@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const development = {
-    host: String(process.env.DEFAULT_DB_NAME),
+    host: String(process.env.DEFAULT_DB_HOST),
     database: String(process.env.DEFAULT_DB_NAME),
     username: String(process.env.DEFAULT_DB_USER),
     password: String(process.env.DEFAULT_DB_PASSWORD),
