@@ -1,25 +1,13 @@
-// import { Sequelize } from "sequelize"
-
-// export class database {
-//     sequelize = new Sequelize('ERP', 'ERP_USER', 'ShiCheng1999$', {
-//         host: '127.0.0.1',
-//         dialect: 'mssql',
-//         dialectOptions: {
-//             options: {
-//                 encrypt: false,
-//                 trustServerCertificate: false
-//             }
-//         }
-//     });
-// }
-
 import { Dialect } from "sequelize";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const development = {
-    username: "ERP_USER",
-    password: "ShiCheng1999$",
-    database: "ERP",
-    host: "localhost",
+    host: String(process.env.DEFAULT_DB_NAME),
+    database: String(process.env.DEFAULT_DB_NAME),
+    username: String(process.env.DEFAULT_DB_USER),
+    password: String(process.env.DEFAULT_DB_PASSWORD),
     dialect: "mysql" as Dialect,
     migrationStoragePath: "src/migrations",
     seederStoragePath: "src/seeders",

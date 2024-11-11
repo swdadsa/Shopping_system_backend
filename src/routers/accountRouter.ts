@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import account from "../controllers/accountController"
-import { validateSignIn, validateSignUp, validateDeleteAccount } from "../middlewares/validationMiddleware/accountValidator";
+import { validateSignIn, validateSignUp, validateSignOut, validateDeleteAccount } from "../middlewares/validationMiddleware/accountValidator";
 import { checkToken } from "../middlewares/checkToken";
 
 class accountRouter {
@@ -20,7 +20,9 @@ class accountRouter {
         this.router.post("/signUp",
             validateSignUp,
             (req, res) => this.accountController.signUp(req, res))
-        this.router.post("/signOut", (req, res) => this.accountController.signOut(req, res))
+        this.router.post("/signOut",
+            validateSignOut,
+            (req, res) => this.accountController.signOut(req, res))
         this.router.delete("/deleteAccount",
             validateDeleteAccount,
             (req, res) => this.accountController.deleteAccount(req, res))

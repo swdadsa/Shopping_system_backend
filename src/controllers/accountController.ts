@@ -5,7 +5,6 @@ import bcrypt from 'bcrypt';
 import { Op } from "sequelize";
 import User_token from "../models/User_token";
 
-
 export default class account {
     public apiResponse = new apiResponse
 
@@ -84,13 +83,26 @@ export default class account {
     }
 
     // 登出
-    signOut(req: Request, res: Response) {
-        res.send('sign out')
-    }
+    async signOut(req: Request, res: Response) {
+        const queryCheckToken: any = await User_token.findOne({
+            where: {
+                "token": req.headers.token
+            }
+        })
 
-    // 檢查token
-    checkToken(req: Request, res: Response) {
-        res.send('check token')
+        if (queryCheckToken) {
+            const querySignOut: any = await User_token.update({
+                "deletedAt": Date.now()
+            }, {
+                where: {
+                    "token": req.headers.token
+                }
+            })
+            res.send(this.apiResponse.response(true, 'sign out success'))
+        } else {
+            res.status(500).send(this.apiResponse.response(false, 'token not found'))
+        }
+
     }
 
     // 刪除帳號

@@ -13,10 +13,11 @@ export async function checkToken(req: Request, res: Response, next: NextFunction
         })
 
         if (checkoutTokenExpired) {
+            // 檢查token是否過期
             if (checkoutTokenExpired.expiredAt < Date.now()) {
                 res.status(500).json(response.response(false, 'Token expired'))
-                return
             } else {
+                //token 沒過期則延長token時效 30 mins
                 const updateQuery: any = await User_token.update({
                     "expiredAt": Date.now() + 30 * 60 * 1000
                 }, {
@@ -29,7 +30,6 @@ export async function checkToken(req: Request, res: Response, next: NextFunction
         } else {
             res.status(500).json(response.response(false, 'Token not found'))
         }
-        // next();
     } else {
         res.status(500).json(response.response(false, '需要Token'))
     }

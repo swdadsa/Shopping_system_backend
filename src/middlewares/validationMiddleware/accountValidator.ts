@@ -34,6 +34,20 @@ export const validateSignUp = (req: Request, res: Response, next: NextFunction) 
     next();
 };
 
+// 登出驗證
+export const validateSignOut = (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object({
+        token: Joi.string().required(),
+    }).unknown(true);
+
+    const { error } = schema.validate(req.headers);
+    if (error) {
+        res.status(400).json(new apiResponse().response(false, error));
+        return;
+    }
+    next();
+};
+
 // 刪除驗證
 export const validateDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
