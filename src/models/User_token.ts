@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import { development } from '../../config/config'
 
-var sequelize = new Sequelize(development.database, development.username, development.password, {
+let sequelize = new Sequelize(development.database, development.username, development.password, {
     host: development.host,
     timezone: development.timezone,
     dialect: development.dialect,
@@ -10,7 +10,7 @@ var sequelize = new Sequelize(development.database, development.username, develo
     },
 });
 
-var User_token = sequelize.define('User_token', {
+let User_token = sequelize.define('User_token', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

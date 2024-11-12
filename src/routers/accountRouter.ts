@@ -1,4 +1,4 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import account from "../controllers/accountController"
 import { validateSignIn, validateSignUp, validateSignOut, validateDeleteAccount } from "../middlewares/validationMiddleware/accountValidator";
 import { checkToken } from "../middlewares/checkToken";
