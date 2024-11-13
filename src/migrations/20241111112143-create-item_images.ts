@@ -2,33 +2,23 @@ import { DataTypes, Sequelize } from "sequelize";
 
 export default {
   up: async (queryInterface: any) => {
-    await queryInterface.createTable("items", {
+    await queryInterface.createTable("item_images", {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      sub_title_id: {
+      item_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      name: {
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      path: {
         type: DataTypes.STRING,
-        length: 100,
-        allowNull: false,
-      },
-      price: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      storage: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.STRING,
-        length: 1000,
         allowNull: false,
       },
       createdAt: {
@@ -49,6 +39,6 @@ export default {
   },
 
   down: async (queryInterface: any) => {
-    await queryInterface.dropTable("items");
+    await queryInterface.dropTable("item_images");
   }
 };
