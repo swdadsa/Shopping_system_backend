@@ -45,16 +45,25 @@ export default class cart {
             const output = await Promise.all(
                 query.map(async (value: any) => {
                     let totalPrice = 'price * ' + value.get('amount');
-                    const item = await Items.findOne({
+                    const item: any = await Items.findOne({
                         attributes: ["id", "name", [sequelize.literal(totalPrice), 'totalPrice'], "storage"],
                         where: {
                             "id": value.item_id
                         }
                     });
 
+                    const image: any = await Item_images.findOne({
+                        attributes: ['path'],
+                        where: {
+                            "item_id": item.id,
+                            "order": 1
+                        }
+                    })
+
                     return {
                         ...item?.toJSON(),
-                        amount: value.get('amount')
+                        amount: value.get('amount'),
+                        path: process.env.APP_URL + image.path
                     };
                 })
             );

@@ -14,7 +14,7 @@ class itemsRouter {
     }
 
     private routerEnable() {
-        this.router.get("/index/:id",
+        this.router.get("/index/:item_id",
             (req, res) => this.itmesController.index(req, res))
         this.router.post("/store",
             checkToken,
@@ -24,6 +24,8 @@ class itemsRouter {
             checkToken,
             uploadMultipleImages,
             (req, res) => this.itmesController.update(req, res))
+        this.router.get("/show/:id",
+            (req, res) => this.itmesController.show(req, res))
 
     }
 

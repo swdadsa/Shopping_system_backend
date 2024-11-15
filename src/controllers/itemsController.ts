@@ -23,7 +23,7 @@ export default class items {
                 },
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
                 where: {
-                    "sub_title_id": req.params.id
+                    "sub_title_id": req.params.item_id
                 }
             })
 
@@ -34,7 +34,7 @@ export default class items {
                     item_images: item.item_images.map((image: any) => ({
                         id: image.id,
                         order: image.order,
-                        path: "localhost:3000/" + image.path // Append APP_URL to path
+                        path: process.env.APP_URL + image.path // Append APP_URL to path
                     }))
                 }));
 
@@ -153,6 +153,30 @@ export default class items {
             }
 
             res.send(this.apiResponse.response(true, 'Item updated successfully'));
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, 'Unexpected error:' + error));
+        }
+    }
+
+
+    async show(req: Request, res: Response) {
+        try {
+
+            Items.hasMany(Item_images, { foreignKey: "item_id" })
+
+            const query: any = await Items.findOne({
+                include: {
+                    model: Item_images,
+                    attributes: ["id", "path", "order"],
+                    order: [["order", "ASC"]],
+                    separate: true
+                },
+                attributes: ["id", "name", "price", "storage", "description"],
+                where: {
+                    "id": req.params.id
+                }
+            })
+            res.send(this.apiResponse.response(true, query));
         } catch (error) {
             res.status(500).send(this.apiResponse.response(false, 'Unexpected error:' + error));
         }
