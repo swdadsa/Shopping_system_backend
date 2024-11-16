@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 
 export = {
   async up(queryInterface: any) {
-    await queryInterface.bulkInsert('users', [
+    await queryInterface.bulkInsert('Users', [
       {
         username: 'Finn1119',
         email: 'Finn@example.com',
@@ -16,7 +16,7 @@ export = {
 
   async down(queryInterface: any) {
     await queryInterface.bulkUpdate(
-      'users',
+      'Users',
       { deletedAt: new Date() }, // Setting deletedAt to current date to indicate a soft delete
       { username: ['Finn1119'] } // Condition to match specific rows
     );

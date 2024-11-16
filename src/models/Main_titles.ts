@@ -10,7 +10,7 @@ let sequelize = new Sequelize(development.database, development.username, develo
     },
 });
 
-let Main_titles = sequelize.define('main_titles', {
+let Main_titles = sequelize.define('Main_titles', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -33,7 +33,7 @@ let Main_titles = sequelize.define('main_titles', {
         type: DataTypes.DATE,
     }
 }, {
-    tableName: 'main_titles', // 指定現有資料表名
+    tableName: 'Main_titles', // 指定現有資料表名
     freezeTableName: true, // 不要讓 Sequelize 自動改變表名
     timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
     paranoid: true,// deletedAt 軟刪除

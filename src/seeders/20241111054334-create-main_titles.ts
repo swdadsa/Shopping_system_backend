@@ -1,6 +1,6 @@
 export = {
   async up(queryInterface: any) {
-    await queryInterface.bulkInsert('main_titles', [
+    await queryInterface.bulkInsert('Main_titles', [
       {
         name: 'Electronics',
         description: '',

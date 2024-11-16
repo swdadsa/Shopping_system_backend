@@ -2,7 +2,7 @@ import { DataTypes, Sequelize } from "sequelize";
 
 export default {
   up: async (queryInterface: any) => {
-    await queryInterface.createTable("sub_titles", {
+    await queryInterface.createTable("Sub_titles", {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -41,6 +41,6 @@ export default {
   },
 
   down: async (queryInterface: any) => {
-    await queryInterface.dropTable("sub_titles");
+    await queryInterface.dropTable("Sub_titles");
   }
 };

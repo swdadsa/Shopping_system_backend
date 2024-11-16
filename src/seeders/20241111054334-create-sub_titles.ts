@@ -1,6 +1,6 @@
 export = {
   async up(queryInterface: any) {
-    await queryInterface.bulkInsert('sub_titles', [
+    await queryInterface.bulkInsert('Sub_titles', [
       {
         main_title_id: 1,
         name: 'Mobile Phones & Accessories',
