@@ -16,7 +16,7 @@ class cartRouter {
         this.router.post("/store",
             checkToken,
             (req, res) => this.cartController.store(req, res))
-        this.router.post("/show",
+        this.router.get("/show",
             checkToken,
             (req, res) => this.cartController.show(req, res))
         this.router.patch("/update",
