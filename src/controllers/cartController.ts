@@ -46,7 +46,7 @@ export default class cart {
                 query.map(async (value: any) => {
                     let totalPrice = 'price * ' + value.get('amount');
                     const item: any = await Items.findOne({
-                        attributes: ["id", "name", [sequelize.literal(totalPrice), 'totalPrice'], "storage"],
+                        attributes: ["id", "name", "price", [sequelize.literal(totalPrice), 'totalPrice'], "storage"],
                         where: {
                             "id": value.item_id
                         }
@@ -107,6 +107,26 @@ export default class cart {
                 default:
                     res.status(500).send(this.apiResponse.response(false, 'bad movement'))
                     break
+            }
+
+        } catch (error: any) {
+            res.status(500).send(this.apiResponse.response(false, error.message))
+        }
+    }
+
+    async destroy(req: Request, res: Response) {
+        try {
+            const query: any = await Cart.destroy({
+                where: {
+                    "user_id": req.body.user_id,
+                    "item_id": req.body.item_id,
+                }
+            })
+
+            if (query) {
+                res.send(this.apiResponse.response(true, 'delete item from cart successfully'))
+            } else {
+                res.status(500).send(this.apiResponse.response(false, 'delete item from cart failed'))
             }
 
         } catch (error: any) {

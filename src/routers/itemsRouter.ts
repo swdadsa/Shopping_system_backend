@@ -14,7 +14,7 @@ class itemsRouter {
     }
 
     private routerEnable() {
-        this.router.get("/index/:item_id",
+        this.router.get("/index/:sub_title_id",
             (req, res) => this.itmesController.index(req, res))
         this.router.post("/store",
             checkToken,

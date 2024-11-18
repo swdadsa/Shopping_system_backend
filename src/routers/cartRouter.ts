@@ -22,6 +22,9 @@ class cartRouter {
         this.router.patch("/update",
             checkToken,
             (req, res) => this.cartController.update(req, res))
+        this.router.delete("/delete",
+            checkToken,
+            (req, res) => this.cartController.destroy(req, res))
     }
 
 }

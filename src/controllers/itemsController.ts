@@ -23,7 +23,7 @@ export default class items {
                 },
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
                 where: {
-                    "sub_title_id": req.params.item_id
+                    "sub_title_id": req.params.sub_title_id
                 }
             })
 
@@ -31,7 +31,7 @@ export default class items {
                 // Transform query data by adding APP_URL to path
                 const transformedData = query.map((item: any) => ({
                     ...item.toJSON(),
-                    item_images: item.item_images.map((image: any) => ({
+                    Item_images: item.Item_images.map((image: any) => ({
                         id: image.id,
                         order: image.order,
                         path: process.env.APP_URL + image.path // Append APP_URL to path
