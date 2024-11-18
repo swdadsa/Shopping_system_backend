@@ -25,6 +25,9 @@ class cartRouter {
         this.router.delete("/delete",
             checkToken,
             (req, res) => this.cartController.destroy(req, res))
+        this.router.post("/submit",
+            checkToken,
+            (req, res) => this.cartController.submit(req, res))
     }
 
 }

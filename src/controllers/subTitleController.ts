@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import { apiResponse } from "../response/apiResponse";
-import bcrypt from 'bcrypt';
-import { Op } from "sequelize";
 import Sub_title from "../models/Sub_titles";
 import Main_titles from "../models/Main_titles";
 

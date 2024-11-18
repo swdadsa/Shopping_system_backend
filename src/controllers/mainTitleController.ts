@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import { apiResponse } from "../response/apiResponse";
-import bcrypt from 'bcrypt';
-import { Op } from "sequelize";
 import Main_title from "../models/Main_titles";
 
 export default class mainTitle {

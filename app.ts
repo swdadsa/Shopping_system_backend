@@ -9,7 +9,9 @@ dotenv.config();
 const port = process.env.SERVER_PORT;
 const app: Express = express();
 
+// helmet tool, add security headers
 app.use(helmet());
+// serve api
 app.use("/api", defaultRoute);
 // serve image
 app.use("/images", express.static(__dirname + '/src/images'));

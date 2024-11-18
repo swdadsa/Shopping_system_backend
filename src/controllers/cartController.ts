@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { apiResponse } from "../response/apiResponse";
-import fs from 'fs';
-import path, { resolve } from 'path';
 import Items from "../models/Items";
 import Item_images from "../models/Item_images";
-import Cart from "../models/cart";
+import Cart from "../models/Cart";
 import sequelize from "sequelize";
+import Order_list from "../models/Order_list";
+import Order_list_detail from "../models/Order_list_detail";
 
 export default class cart {
     public apiResponse = new apiResponse
@@ -129,6 +129,60 @@ export default class cart {
                 res.status(500).send(this.apiResponse.response(false, 'delete item from cart failed'))
             }
 
+        } catch (error: any) {
+            res.status(500).send(this.apiResponse.response(false, error.message))
+        }
+    }
+
+    async submit(req: Request, res: Response) {
+        try {
+            const body = req.body
+            const arr: any = []
+
+            // create order list
+            const createOrderList: any = await Order_list.create({
+                "order_unique_number": body.user_id + '-' + Date.now() + '-' + Math.round(Math.random() * 10000),
+                "user_id": body.user_id,
+                "condition": 0,
+                "total_price": body.total_price
+            })
+            if (createOrderList) {
+                body.item.map(async (index: any, key: any) => {
+                    // create order list deatil
+                    await Order_list_detail.create({
+                        "order_list_id": createOrderList.id,
+                        "item_id": index.id,
+                        "amount": index.amount
+                    })
+
+                    // delete cart item 
+                    for (let i = 0; i < index.amount; i++) {
+                        // find one
+                        const findOneItemFromCart: any = await Cart.findOne({
+                            attributes: ["id"],
+                            where: {
+                                "user_id": body.user_id,
+                                "item_id": index.id
+                            }
+                        })
+                        // and delete
+                        if (findOneItemFromCart) {
+                            await Cart.destroy({
+                                where: {
+                                    "id": findOneItemFromCart.id
+                                }
+                            })
+                        } else {
+                            res.status(500).send(this.apiResponse.response(false, 'delete item from cart failed'))
+                            return
+                        }
+                    }
+                })
+            } else {
+                res.status(500).send(this.apiResponse.response(false, 'create order list error'))
+            }
+
+            res.send(this.apiResponse.response(true, 'create order list successfully'))
         } catch (error: any) {
             res.status(500).send(this.apiResponse.response(false, error.message))
         }
