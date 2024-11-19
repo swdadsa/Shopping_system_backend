@@ -26,9 +26,9 @@ class accountRouter {
         this.router.delete("/deleteAccount",
             validateDeleteAccount,
             (req, res) => this.accountController.deleteAccount(req, res))
-        this.router.post("/test",
+        this.router.get("/list",
             checkToken,
-            (req, res) => this.accountController.test(req, res))
+            (req, res) => this.accountController.list(req, res))
     }
 
 }

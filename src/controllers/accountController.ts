@@ -8,8 +8,16 @@ import User_token from "../models/User_token";
 export default class account {
     public apiResponse = new apiResponse
 
-    test(req: Request, res: Response) {
-        res.send("test")
+    async list(req: Request, res: Response) {
+        try {
+            const query: any = await Users.findAll({
+                attributes: ["id", "username"]
+            })
+
+            res.send(this.apiResponse.response(true, query))
+        } catch (error: any) {
+            res.status(500).json(this.apiResponse.response(false, error.message))
+        }
     }
 
     // 登入

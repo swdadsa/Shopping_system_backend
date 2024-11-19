@@ -137,7 +137,6 @@ export default class cart {
     async submit(req: Request, res: Response) {
         try {
             const body = req.body
-            const arr: any = []
 
             // create order list
             const createOrderList: any = await Order_list.create({

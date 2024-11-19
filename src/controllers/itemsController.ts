@@ -23,7 +23,7 @@ export default class items {
                 },
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
                 where: {
-                    "sub_title_id": req.params.sub_title_id
+                    "sub_title_id": req.body.sub_title_id
                 }
             })
 
@@ -40,7 +40,7 @@ export default class items {
 
                 res.send(this.apiResponse.response(true, transformedData));
             } else {
-                res.send(this.apiResponse.response(true, req.params.id));
+                res.send(this.apiResponse.response(true, []));
             }
 
         } catch (error) {
@@ -173,7 +173,7 @@ export default class items {
                 },
                 attributes: ["id", "name", "price", "storage", "description"],
                 where: {
-                    "id": req.params.id
+                    "id": req.body.id
                 }
             })
             res.send(this.apiResponse.response(true, query));
