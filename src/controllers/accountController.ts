@@ -4,6 +4,7 @@ import { apiResponse } from "../response/apiResponse";
 import bcrypt from 'bcrypt';
 import { Op } from "sequelize";
 import User_token from "../models/User_token";
+import jwt from "jsonwebtoken";
 
 export default class account {
     public apiResponse = new apiResponse
