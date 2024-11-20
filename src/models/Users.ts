@@ -21,13 +21,15 @@ let Users = sequelize.define('Users', {
     },
     email: {
         type: DataTypes.STRING,
-        unique: true,
     },
     password: {
         type: DataTypes.STRING,
     },
     permissions: {
         type: DataTypes.TINYINT,
+    },
+    isVerified: {
+        type: DataTypes.BOOLEAN,
     },
     createdAt: {
         type: DataTypes.DATE,

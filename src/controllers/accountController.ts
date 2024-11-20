@@ -4,7 +4,8 @@ import { apiResponse } from "../response/apiResponse";
 import bcrypt from 'bcrypt';
 import { Op } from "sequelize";
 import User_token from "../models/User_token";
-import jwt from "jsonwebtoken";
+import { generateVerificationToken, verifyToken } from "../utils/jwt";
+import { sendVerificationEmail } from "../utils/emailSender";
 
 export default class account {
     public apiResponse = new apiResponse
@@ -28,7 +29,8 @@ export default class account {
             const query: any = await Users.findOne({
                 attributes: ['id', 'username', 'password', 'permissions'],
                 where: {
-                    "username": username
+                    "username": username,
+                    "isVerified": 1
                 }
             })
 
@@ -59,7 +61,7 @@ export default class account {
                     res.send(this.apiResponse.response(true, output))
                 }
             } else {
-                res.send(this.apiResponse.response(false, 'account not find'))
+                res.send(this.apiResponse.response(false, 'account not find or not verified'))
             }
         } catch (error: any) {
             res.status(500).json(this.apiResponse.response(false, error.message))
@@ -81,14 +83,16 @@ export default class account {
                 res.send(this.apiResponse.response(false, 'account or email is already exist'))
             } else {
                 const query: any = Users.create({
-
                     "username": username,
                     "password": await bcrypt.hash(password, 10),
                     "email": email,
-                    "permissions": permissions
+                    "permissions": permissions,
+                    "isVerified": 0
                 })
                 if (query) {
-                    res.send(this.apiResponse.response(true, 'sign up success'))
+                    const token = generateVerificationToken(email);
+                    await sendVerificationEmail(email, token)
+                    res.send(this.apiResponse.response(true, 'please verify you account on you email'))
                 } else {
                     res.status(400).send(this.apiResponse.response(false, 'sign up fail'))
                 }
@@ -143,6 +147,28 @@ export default class account {
                 res.send(this.apiResponse.response(true, 'user ' + username + ' is deleted'))
             } else {
                 res.send(this.apiResponse.response(false, 'account not found'))
+            }
+        } catch (error: any) {
+            res.status(500).json(this.apiResponse.response(false, error.message))
+        }
+    }
+
+    async verifyAccount(req: Request, res: Response) {
+        try {
+            const result = verifyToken(req.params.token);
+
+            const findAccount: any = await Users.findOne({
+                where: {
+                    "email": result.email
+                }
+            })
+
+            if (findAccount) {
+                findAccount.isVerified = 1
+                findAccount.save()
+                res.send(this.apiResponse.response(true, 'verify successfully'))
+            } else {
+                res.send(this.apiResponse.response(true, 'account not found'))
             }
         } catch (error: any) {
             res.status(500).json(this.apiResponse.response(false, error.message))

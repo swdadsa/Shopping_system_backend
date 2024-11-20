@@ -29,6 +29,8 @@ class accountRouter {
         this.router.get("/list",
             checkToken,
             (req, res) => this.accountController.list(req, res))
+        this.router.get("/verifyAccount/:token",
+            (req, res) => this.accountController.verifyAccount(req, res))
     }
 
 }

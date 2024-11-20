@@ -8,6 +8,7 @@ export = {
         email: 'Finn@example.com',
         password: await bcrypt.hash("12345678", 10),
         permissions: 0,
+        isVerified: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
       }

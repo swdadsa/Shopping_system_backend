@@ -16,7 +16,6 @@ export default {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       password: {
         type: DataTypes.STRING,
@@ -26,6 +25,11 @@ export default {
         type: DataTypes.TINYINT,
         allowNull: false,
         defaultValue: 1
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         type: DataTypes.DATE,
