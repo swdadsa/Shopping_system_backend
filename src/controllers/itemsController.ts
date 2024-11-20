@@ -176,6 +176,18 @@ export default class items {
                     "id": req.body.id
                 }
             })
+
+            // Check if query returned a result
+            if (query && query.Item_images) {
+                // Convert Sequelize instances to plain objects
+                query.Item_images = query.Item_images.map((image: any) => {
+                    const plainImage = image.get({ plain: true }); // Convert to plain object
+                    plainImage.path = `${process.env.APP_URL}${plainImage.path}`; // Modify path
+                    return plainImage;
+                });
+            }
+
+            // Send the response
             res.send(this.apiResponse.response(true, query));
         } catch (error) {
             res.status(500).send(this.apiResponse.response(false, 'Unexpected error:' + error));
