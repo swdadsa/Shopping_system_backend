@@ -1,6 +1,6 @@
 import { Router } from "express";
 import account from "../controllers/accountController"
-import { validateSignIn, validateSignUp, validateSignOut, validateDeleteAccount } from "../middlewares/validationMiddleware/accountValidator";
+import { validateSignIn, validateSignUp, validateSignOut, validateDeleteAccount, validateProfiles, validateUpdateProfiles } from "../middlewares/validationMiddleware/accountValidator";
 import { checkToken } from "../middlewares/checkToken";
 
 class accountRouter {
@@ -29,6 +29,14 @@ class accountRouter {
         this.router.get("/list",
             checkToken,
             (req, res) => this.accountController.list(req, res))
+        this.router.get("/profiles",
+            checkToken,
+            validateProfiles,
+            (req, res) => this.accountController.profiles(req, res))
+        this.router.patch("/updateProfiles",
+            checkToken,
+            validateUpdateProfiles,
+            (req, res) => this.accountController.updateProfiles(req, res))
         this.router.get("/verifyAccount/:token",
             (req, res) => this.accountController.verifyAccount(req, res))
     }

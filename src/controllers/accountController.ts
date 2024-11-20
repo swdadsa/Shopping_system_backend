@@ -153,6 +153,42 @@ export default class account {
         }
     }
 
+    async profiles(req: Request, res: Response) {
+        try {
+            const query: any = await Users.findOne({
+                attributes: ["id", "username", "email", "permissions", "isVerified"],
+                where: {
+                    "id": req.body.id
+                }
+            })
+
+            res.send(this.apiResponse.response(true, query))
+        } catch (error: any) {
+            res.status(500).json(this.apiResponse.response(false, error.message))
+        }
+    }
+
+    async updateProfiles(req: Request, res: Response) {
+        try {
+            const query: any = await Users.update({
+                "username": req.body.username,
+                "email": req.body.email
+            }, {
+                where: {
+                    "id": req.body.id
+                }
+            })
+
+            if (query) {
+                res.send(this.apiResponse.response(true, 'update profiles successfully'))
+            } else {
+                res.status(500).json(this.apiResponse.response(false, 'update profiles failed'))
+            }
+        } catch (error: any) {
+            res.status(500).json(this.apiResponse.response(false, error.message))
+        }
+    }
+
     async verifyAccount(req: Request, res: Response) {
         try {
             const result = verifyToken(req.params.token);

@@ -61,3 +61,33 @@ export const validateDeleteAccount = (req: Request, res: Response, next: NextFun
     }
     next();
 };
+
+// 基本資料驗證
+export const validateProfiles = (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object({
+        id: Joi.number().required()
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json(new apiResponse().response(false, error.details[0].message));
+        return;
+    }
+    next();
+};
+
+// 更新基本資料驗證
+export const validateUpdateProfiles = (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object({
+        id: Joi.number().required(),
+        username: Joi.string().required(),
+        email: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json(new apiResponse().response(false, error.details[0].message));
+        return;
+    }
+    next();
+};
