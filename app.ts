@@ -2,6 +2,7 @@ import express, { Express } from 'express'
 import { defaultRoute } from './src/routers/router'
 import helmet from "helmet";
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 
 dotenv.config();
@@ -9,6 +10,7 @@ dotenv.config();
 const port = process.env.SERVER_PORT;
 const app: Express = express();
 
+app.use(cors())
 // helmet tool, add security headers
 app.use(helmet());
 // serve api
