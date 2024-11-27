@@ -27,9 +27,9 @@ export const validateItemShow = (req: Request, res: Response, next: NextFunction
         id: Joi.number().required(),
     }).unknown(true);
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.query);
     if (error) {
-        res.status(400).json(new apiResponse().response(false, error));
+        res.status(400).json(new apiResponse().response(false, error.details[0].message));
         return;
     }
     next();
@@ -41,7 +41,7 @@ export const validateItemIndex = (req: Request, res: Response, next: NextFunctio
         sub_title_id: Joi.number().required(),
     });
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.query);
     if (error) {
         res.status(400).json(new apiResponse().response(false, error.details[0].message));
         return;

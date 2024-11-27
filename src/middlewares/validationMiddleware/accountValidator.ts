@@ -68,7 +68,7 @@ export const validateProfiles = (req: Request, res: Response, next: NextFunction
         id: Joi.number().required()
     });
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.query);
     if (error) {
         res.status(400).json(new apiResponse().response(false, error.details[0].message));
         return;

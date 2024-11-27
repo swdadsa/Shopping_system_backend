@@ -158,7 +158,7 @@ export default class account {
             const query: any = await Users.findOne({
                 attributes: ["id", "username", "email", "permissions", "isVerified"],
                 where: {
-                    "id": req.body.id
+                    "id": req.query.id
                 }
             })
 

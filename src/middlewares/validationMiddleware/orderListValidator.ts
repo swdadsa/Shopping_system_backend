@@ -10,7 +10,7 @@ export const validateOrderListIndex = (req: Request, res: Response, next: NextFu
         user_id: Joi.number().required(),
     });
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.query);
     if (error) {
         res.status(400).json(new apiResponse().response(false, error.details[0].message));
         return;
@@ -24,7 +24,7 @@ export const validateOrderListIndexDetail = (req: Request, res: Response, next: 
         order_list_id: Joi.number().required()
     });
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.query);
     if (error) {
         res.status(400).json(new apiResponse().response(false, error.details[0].message));
         return;

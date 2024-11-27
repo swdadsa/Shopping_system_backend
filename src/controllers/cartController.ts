@@ -29,7 +29,7 @@ export default class cart {
 
     async show(req: Request, res: Response) {
         try {
-            const user_id = req.body.user_id
+            const user_id = req.query.user_id
 
             // search all cart items
             const query: any = await Cart.findAll({

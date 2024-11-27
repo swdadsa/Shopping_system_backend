@@ -40,9 +40,9 @@ export const validateCartShow = (req: Request, res: Response, next: NextFunction
         user_id: Joi.number().required(),
     }).unknown(true);
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.query);
     if (error) {
-        res.status(400).json(new apiResponse().response(false, error));
+        res.status(400).json(new apiResponse().response(false, error.details[0].message));
         return;
     }
     next();

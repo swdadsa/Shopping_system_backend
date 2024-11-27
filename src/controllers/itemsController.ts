@@ -23,7 +23,7 @@ export default class items {
                 },
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
                 where: {
-                    "sub_title_id": req.body.sub_title_id
+                    "sub_title_id": req.query.sub_title_id
                 }
             })
 
@@ -173,7 +173,7 @@ export default class items {
                 },
                 attributes: ["id", "name", "price", "storage", "description"],
                 where: {
-                    "id": req.body.id
+                    "id": req.query.id
                 }
             })
 

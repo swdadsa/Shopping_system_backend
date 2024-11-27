@@ -13,7 +13,7 @@ export default class orderList {
             const query: any = await Order_list.findAll({
                 attributes: ["id", "order_unique_number", "condition", "total_price"],
                 where: {
-                    "user_id": req.body.user_id
+                    "user_id": req.query.user_id
                 }
             })
             res.send(this.apiResponse.response(true, query))
@@ -37,7 +37,7 @@ export default class orderList {
                 },
                 attributes: ["id", "order_list_id", "item_id", "amount"],
                 where: {
-                    "order_list_id": req.body.order_list_id
+                    "order_list_id": req.query.order_list_id
                 }
             })
 
@@ -55,7 +55,7 @@ export default class orderList {
             const queryTotalPrice: any = await Order_list.findOne({
                 attributes: ["total_price"],
                 where: {
-                    "id": req.body.order_list_id
+                    "id": req.query.order_list_id
                 }
             })
 
