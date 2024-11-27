@@ -29,14 +29,17 @@ export default class items {
 
             if (query) {
                 // Transform query data by adding APP_URL to path
-                const transformedData = query.map((item: any) => ({
-                    ...item.toJSON(),
-                    Item_images: item.Item_images.map((image: any) => ({
-                        id: image.id,
-                        order: image.order,
-                        path: process.env.APP_URL + image.path // Append APP_URL to path
-                    }))
-                }));
+                const transformedData = query.map((item: any) => {
+                    const fixPath = item.Item_images.map((values: any) => {
+                        return process.env.APP_URL + values.path
+
+                    })
+                    return {
+                        ...item.toJSON(),
+                        Item_images: fixPath[0]
+                    }
+
+                });
 
                 res.send(this.apiResponse.response(true, transformedData));
             } else {
