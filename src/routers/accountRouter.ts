@@ -37,7 +37,7 @@ class accountRouter {
             checkToken,
             validateUpdateProfiles,
             (req, res) => this.accountController.updateProfiles(req, res))
-        this.router.get("/verifyAccount/:token",
+        this.router.get("/verifyAccount",
             (req, res) => this.accountController.verifyAccount(req, res))
     }
 

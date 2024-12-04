@@ -92,7 +92,7 @@ export default class account {
                 if (query) {
                     const token = generateVerificationToken(email);
                     await sendVerificationEmail(email, token)
-                    res.send(this.apiResponse.response(true, 'please verify you account on you email'))
+                    res.send(this.apiResponse.response(true, 'We already sending a verify mail to you, please check on you email address'))
                 } else {
                     res.status(400).send(this.apiResponse.response(false, 'sign up fail'))
                 }
@@ -191,7 +191,7 @@ export default class account {
 
     async verifyAccount(req: Request, res: Response) {
         try {
-            const result = verifyToken(req.params.token);
+            const result = verifyToken(String(req.query.token));
 
             const findAccount: any = await Users.findOne({
                 where: {

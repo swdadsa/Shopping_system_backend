@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendVerificationEmail(to: string, token: string) {
-    const verificationLink = `${process.env.APP_URL}api/account/verifyAccount/${token}`;
+    const verificationLink = `${process.env.FRONTEND_URL}/authAccount?token=${token}`;
     const mailOptions = {
         from: 'ERP APP<' + process.env.GMAIL_USER + '>',
         to: to,
