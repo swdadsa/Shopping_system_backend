@@ -92,7 +92,7 @@ export default class account {
                 if (query) {
                     const token = generateVerificationToken(email);
                     await sendVerificationEmail(email, token)
-                    res.send(this.apiResponse.response(true, 'We already sending a verify mail to you, please check on you email address'))
+                    res.send(this.apiResponse.response(true, 'We already send a verify mail to you, please checkout you email'))
                 } else {
                     res.status(400).send(this.apiResponse.response(false, 'sign up fail'))
                 }

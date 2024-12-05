@@ -22,6 +22,7 @@ export async function sendVerificationEmail(to: string, token: string) {
             <h1>Welcome to ERP APP</h1>
             <p>Click the link below to verify your account:</p>
             <a href="${verificationLink}">Verify Account</a>
+            <p>The URL will expire in one day</p>
         `,
     };
 
