@@ -13,6 +13,6 @@ jobs:
     steps:
       - name: Change to project directory and deploy
         run: |
-          cd /d "D:\apacheTest\ServerSample\web\node\ERP_system_backend"
+          cd D:\apacheTest\ServerSample\web\node\ERP_system_backend
           git pull
           npm install
