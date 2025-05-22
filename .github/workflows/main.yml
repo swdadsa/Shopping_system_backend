@@ -1,4 +1,4 @@
-name: Deploy to Windows Server (P10331)
+name: Deploy to Windows Server (P10113)
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     name: Deploy on self-hosted Windows runner
-    runs-on: [self-hosted, P10331]  # 使用你的自註冊 runner
+    runs-on: [self-hosted, P10113]  # 使用你的自註冊 runner
 
     steps:
       - name: Change to project directory and deploy
