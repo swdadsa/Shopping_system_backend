@@ -3,7 +3,7 @@ name: Deploy to Windows Server (P10331)
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
