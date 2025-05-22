@@ -100,7 +100,7 @@ export default class advertisement {
             })
 
             const imagePath = './src/' + query.image_path
-            await fs.promises.unlink(imagePath); // Delete file
+            await fs.promises.unlink(imagePath); // 刪除檔案
             query.destroy()
 
             res.send(this.apiResponse.response(true, 'delete ads successfully'))
