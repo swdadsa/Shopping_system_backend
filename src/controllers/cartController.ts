@@ -22,8 +22,8 @@ export default class cart {
             }
 
             res.send(this.apiResponse.response(true, 'store items to cart successfully'))
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
@@ -32,10 +32,10 @@ export default class cart {
             const user_id = req.query.user_id
 
             // search all cart items
-            const query: any = await Cart.findAll({
+            const query = await Cart.findAll({
                 attributes: ["item_id", [sequelize.literal('count(0)'), 'amount']],
                 where: {
-                    "user_id": user_id
+                    "user_id": Number(user_id)
                 },
                 group: "item_id",
                 order: [["item_id", "ASC"]]
@@ -44,33 +44,35 @@ export default class cart {
             // transform data  (item detail and item price times amout to show total price)
             const output = await Promise.all(
                 query.map(async (value: any) => {
+                    // calculate total price
                     let totalPrice = 'price * ' + value.get('amount');
+
                     const item: any = await Items.findOne({
+                        include: {
+                            model: Item_images,
+                            as: "images",
+                            attributes: ['path'],
+                            where: {
+                                "order": 1
+                            }
+                        },
                         attributes: ["id", "name", "price", [sequelize.literal(totalPrice), 'totalPrice'], "storage"],
                         where: {
                             "id": value.item_id
                         }
                     });
 
-                    const image: any = await Item_images.findOne({
-                        attributes: ['path'],
-                        where: {
-                            "item_id": item.id,
-                            "order": 1
-                        }
-                    })
-
                     return {
                         ...item?.toJSON(),
                         amount: value.get('amount'),
-                        path: process.env.APP_URL + image.path
+                        path: process.env.APP_URL + item.images[0].path
                     };
                 })
             );
 
             res.send(this.apiResponse.response(true, output))
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
@@ -109,8 +111,8 @@ export default class cart {
                     break
             }
 
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
@@ -129,8 +131,8 @@ export default class cart {
                 res.status(500).send(this.apiResponse.response(false, 'delete item from cart failed'))
             }
 
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
@@ -182,8 +184,8 @@ export default class cart {
             }
 
             res.send(this.apiResponse.response(true, 'create order list successfully'))
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 }

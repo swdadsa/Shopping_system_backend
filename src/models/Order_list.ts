@@ -1,47 +1,70 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+import { Model, DataTypes, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 定義資料表欄位的 interface
+interface IOrderListAttributes {
+    id: number;
+    order_unique_number: string;
+    user_id: number;
+    condition: number;
+    total_price: number;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+}
 
-let Order_list = sequelize.define('Order_list', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+// 可在建立時忽略的欄位（例如 auto-increment id）
+interface IOrderListCreationAttributes extends Optional<IOrderListAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 定義模型 class
+class OrderList extends Model<IOrderListAttributes, IOrderListCreationAttributes> implements IOrderListAttributes {
+    public id!: number;
+    public order_unique_number!: string;
+    public user_id!: number;
+    public condition!: number;
+    public total_price!: number;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+// 初始化模型
+OrderList.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        order_unique_number: {
+            type: DataTypes.STRING,
+        },
+        user_id: {
+            type: DataTypes.INTEGER,
+        },
+        condition: {
+            type: DataTypes.STRING,
+        },
+        total_price: {
+            type: DataTypes.STRING,
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+        },
+        deletedAt: {
+            type: DataTypes.DATE,
+        },
     },
-    order_unique_number: {
-        type: DataTypes.STRING,
-    },
-    user_id: {
-        type: DataTypes.INTEGER,
-    },
-    condition: {
-        type: DataTypes.STRING,
-    },
-    total_price: {
-        type: DataTypes.STRING,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-    },
-    deletedAt: {
-        type: DataTypes.DATE,
+    {
+        sequelize,
+        tableName: 'Order_list',
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true,
     }
-}, {
-    tableName: 'Order_list', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
-});
+);
 
-export default Order_list
+export default OrderList;

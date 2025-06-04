@@ -1,45 +1,66 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+// models/SubTitle.ts
+import { Model, DataTypes, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 宣告欄位結構
+interface ISubTitleAttributes {
+    id: number;
+    main_title_id: number;
+    name: string;
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+}
 
-let Sub_titles = sequelize.define('Sub_titles', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
+// 建立時可省略的欄位
+interface ISubTitleCreationAttributes
+    extends Optional<ISubTitleAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 定義 Model 類別
+class SubTitle extends Model<ISubTitleAttributes, ISubTitleCreationAttributes>
+    implements ISubTitleAttributes {
+    public id!: number;
+    public main_title_id!: number;
+    public name!: string;
+    public description!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+// 初始化 Model
+SubTitle.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false,
+        },
+        main_title_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false, // 根據你的需求調整是否允許 null
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        description: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE,
     },
-    main_title_id: {
-        type: DataTypes.INTEGER,
-    },
-    name: {
-        type: DataTypes.STRING,
-    },
-    description: {
-        type: DataTypes.STRING,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-    },
-    deletedAt: {
-        type: DataTypes.DATE,
+    {
+        sequelize,
+        tableName: 'Sub_titles',
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true,
     }
-}, {
-    tableName: 'Sub_titles', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
-});
+);
 
-export default Sub_titles
+export default SubTitle;

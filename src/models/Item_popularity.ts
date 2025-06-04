@@ -1,46 +1,68 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+import { Model, DataTypes, Optional, Sequelize } from 'sequelize';
+import sequelize from '../../config/sequelize';
+interface IItemPopularityAttributes {
+    id: number;
+    item_id: number;
+    order: number;
+    path: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+}
 
-let Item_popularity = sequelize.define('Item_popularity', {
+// 2. 建立時可省略欄位
+interface ItemPopularityCreationAttributes extends Optional<IItemPopularityAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+class ItemPopularity extends Model<IItemPopularityAttributes, ItemPopularityCreationAttributes> implements IItemPopularityAttributes {
+    public id!: number;
+    public item_id!: number;
+    public order!: number;
+    public path!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+ItemPopularity.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false,
     },
     item_id: {
         type: DataTypes.INTEGER,
+        allowNull: false,
     },
-    popularity: {
+    order: {
         type: DataTypes.INTEGER,
+        allowNull: false,
     },
-    description: {
+    path: {
         type: DataTypes.STRING,
+        allowNull: false,
     },
     createdAt: {
         type: DataTypes.DATE,
+        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
     },
     updatedAt: {
         type: DataTypes.DATE,
+        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
     },
     deletedAt: {
         type: DataTypes.DATE,
+        allowNull: true,
     }
 }, {
-    tableName: 'Item_popularity', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
+    sequelize,
+    tableName: 'Item_popularity',
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true
 });
 
-export default Item_popularity
+export default ItemPopularity

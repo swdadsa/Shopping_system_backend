@@ -1,41 +1,54 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+import { DataTypes, Model, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 定義欄位型別
+interface CartAttributes {
+    id: number;
+    user_id: number;
+    item_id: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+    deletedAt?: Date | null;
+}
 
-let Cart = sequelize.define('Cart', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+// 定義可選欄位
+interface CartCreationAttributes extends Optional<CartAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 建立 model class
+class Cart extends Model<CartAttributes, CartCreationAttributes> implements CartAttributes {
+    public id!: number;
+    public user_id!: number;
+    public item_id!: number;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+// 初始化 model
+Cart.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        user_id: {
+            type: DataTypes.INTEGER,
+        },
+        item_id: {
+            type: DataTypes.INTEGER,
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE,
     },
-    user_id: {
-        type: DataTypes.INTEGER,
-    },
-    item_id: {
-        type: DataTypes.INTEGER,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-    },
-    deletedAt: {
-        type: DataTypes.DATE,
+    {
+        sequelize,
+        tableName: 'Cart',
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true,
     }
-}, {
-    tableName: 'Cart', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
-});
+);
 
-export default Cart
+export default Cart;

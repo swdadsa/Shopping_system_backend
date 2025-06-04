@@ -23,7 +23,7 @@ export async function checkToken(req: Request, res: Response, next: NextFunction
                 } else {
                     //token 沒過期則延長token時效 30 mins
                     const updateQuery: any = await User_token.update({
-                        "expiredAt": Date.now() + 30 * 60 * 1000
+                        "expiredAt": new Date(Date.now() + 30 * 60 * 1000)
                     }, {
                         where: {
                             "id": checkoutTokenExpired.id

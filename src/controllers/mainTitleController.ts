@@ -7,12 +7,12 @@ export default class mainTitle {
 
     async index(req: Request, res: Response) {
         try {
-            const query: any = await Main_title.findAll({
+            const query = await Main_title.findAll({
                 attributes: ["id", "name"]
             })
             res.send(this.apiResponse.response(true, query))
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
 
     }

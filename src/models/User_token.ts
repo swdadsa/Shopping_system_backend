@@ -1,16 +1,34 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+// models/UserToken.ts
+import { Model, DataTypes, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 1. 宣告完整欄位介面
+interface IUserTokenAttributes {
+    id: number;
+    user_id: number;
+    token: string;
+    expiredAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+}
 
-let User_token = sequelize.define('User_token', {
+// 2. 宣告建立時允許省略的欄位（例如 id 自動產生，timestamps 自動處理）
+interface IUserTokenCreationAttributes extends Optional<IUserTokenAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 3. 宣告 class 並繼承 Sequelize Model
+class UserToken extends Model<IUserTokenAttributes, IUserTokenCreationAttributes> implements IUserTokenAttributes {
+    public id!: number;
+    public user_id!: number;
+    public token!: string;
+    public expiredAt!: Date;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+// 4. 初始化 Model
+UserToken.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -19,12 +37,15 @@ let User_token = sequelize.define('User_token', {
     },
     user_id: {
         type: DataTypes.STRING,
+        allowNull: false,
     },
     token: {
         type: DataTypes.STRING,
+        allowNull: false,
     },
     expiredAt: {
         type: DataTypes.DATE,
+        allowNull: false,
     },
     createdAt: {
         type: DataTypes.DATE,
@@ -36,10 +57,11 @@ let User_token = sequelize.define('User_token', {
         type: DataTypes.DATE,
     }
 }, {
-    tableName: 'User_token', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
+    sequelize,
+    tableName: 'User_token',
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
 });
 
-export default User_token
+export default UserToken;

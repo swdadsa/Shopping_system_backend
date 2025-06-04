@@ -10,12 +10,10 @@ export default class items {
 
     async index(req: Request, res: Response) {
         try {
-            // generate association
-            Items.hasMany(Item_images, { foreignKey: "item_id" });
-
-            const query: any = await Items.findAll({
+            const query = await Items.findAll({
                 include: {
                     model: Item_images,
+                    as: "images",
                     attributes: ['id', 'order', 'path'],
                     where: {
                         "order": 1
@@ -23,14 +21,15 @@ export default class items {
                 },
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
                 where: {
-                    "sub_title_id": req.query.sub_title_id
+                    "sub_title_id": Number(req.query.sub_title_id)
                 }
             })
 
             if (query) {
                 // Transform query data by adding APP_URL to path
                 const transformedData = query.map((item: any) => {
-                    const fixPath = item.Item_images.map((values: any) => {
+                    const images = item.images ?? [];
+                    const fixPath = item.images.map((values: any) => {
                         return process.env.APP_URL + values.path
 
                     })
@@ -53,7 +52,7 @@ export default class items {
 
     async store(req: Request, res: Response) {
         try {
-            const createItem: any = await Items.create({
+            const createItem = await Items.create({
                 "sub_title_id": req.body.sub_title_id,
                 "name": req.body.name,
                 "price": req.body.price,
@@ -101,7 +100,7 @@ export default class items {
 
     async update(req: Request, res: Response) {
         try {
-            const item: any = await Items.findOne({
+            const item = await Items.findOne({
                 where: {
                     'id': req.body.id
                 }
@@ -164,19 +163,17 @@ export default class items {
 
     async show(req: Request, res: Response) {
         try {
-
-            Items.hasMany(Item_images, { foreignKey: "item_id" })
-
             const query: any = await Items.findOne({
                 include: {
                     model: Item_images,
+                    as: "images",
                     attributes: ["id", "path", "order"],
                     order: [["order", "ASC"]],
                     separate: true
                 },
                 attributes: ["id", "name", "price", "storage", "description"],
                 where: {
-                    "id": req.query.id
+                    "id": Number(req.query.id)
                 }
             })
 

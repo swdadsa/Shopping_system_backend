@@ -10,11 +10,11 @@ export default class advertisement {
 
     async index(req: Request, res: Response) {
         try {
-            const query: any = await Advertisement.findAll({
+            const query = await Advertisement.findAll({
                 attributes: ["id", "item_id", "image_path"]
             })
 
-            const output: any = query.map((index: any, key: any) => {
+            const output = query.map((index: any, key: any) => {
                 return {
                     ...index?.toJSON(),
                     image_path: process.env.APP_URL + index.image_path
@@ -22,14 +22,14 @@ export default class advertisement {
             })
 
             res.send(this.apiResponse.response(true, output))
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
     async store(req: Request, res: Response) {
         try {
-            let query: any
+            let query
             const file: any = req.file;
             const oldPath = file.path;
             const newFileName = `image_${Date.now()}${path.extname(file.originalname)}`;
@@ -51,14 +51,14 @@ export default class advertisement {
                 }
             });
 
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
     async update(req: Request, res: Response) {
         try {
-            const query: any = await Advertisement.findOne({
+            const query = await Advertisement.findOne({
                 where: {
                     "item_id": req.body.item_id
                 }
@@ -86,26 +86,28 @@ export default class advertisement {
             } else {
                 res.status(500).json(this.apiResponse.response(false, 'update ads failed'))
             }
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
     async destroy(req: Request, res: Response) {
         try {
-            const query: any = await Advertisement.findOne({
+            const query = await Advertisement.findOne({
                 where: {
                     "item_id": req.body.item_id
                 }
             })
 
-            const imagePath = './src/' + query.image_path
-            await fs.promises.unlink(imagePath); // 刪除檔案
-            query.destroy()
+            if (query) {
+                const imagePath = './src/' + query.image_path
+                await fs.promises.unlink(imagePath); // 刪除檔案
+                query.destroy()
+            }
 
             res.send(this.apiResponse.response(true, 'delete ads successfully'))
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 

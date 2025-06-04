@@ -1,43 +1,56 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+import { DataTypes, Model, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 定義屬性 interface
+interface AdvertisementAttributes {
+    id: number;
+    item_id?: number | null;
+    image_path: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    deletedAt?: Date;
+}
 
-let Advertisement = sequelize.define('Advertisement', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+// 定義可選參數 interface（for create）
+interface AdvertisementCreationAttributes extends Optional<AdvertisementAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 擴充 Model
+class Advertisement extends Model<AdvertisementAttributes, AdvertisementCreationAttributes>
+    implements AdvertisementAttributes {
+    public id!: number;
+    public item_id!: number | null;
+    public image_path!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date;
+}
+
+Advertisement.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        item_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        image_path: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     },
-    item_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    image_path: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-    },
-    deletedAt: {
-        type: DataTypes.DATE,
+    {
+        sequelize,
+        tableName: 'Advertisement',
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true
     }
-}, {
-    tableName: 'Advertisement', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
-});
+);
 
-export default Advertisement
+export default Advertisement;

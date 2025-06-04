@@ -8,31 +8,28 @@ export default class subTitle {
 
     async index(req: Request, res: Response) {
         try {
-            const whereClause: any = {}; // Initialize an empty where clause
+            const whereClause: { main_title_id?: number } = {};
+            const mainTitleId = req.query.main_title_id;
 
             // Add a condition for main_title_id if it exists in the request body
-            if (req.query.main_title_id) {
-                whereClause.main_title_id = req.query.main_title_id;
+            if (typeof mainTitleId === 'string' && !isNaN(Number(mainTitleId))) {
+                whereClause.main_title_id = Number(mainTitleId);
             }
 
-            const query: any = await Sub_title.findAll({
+            const query = await Sub_title.findAll({
                 attributes: ["id", "main_title_id", "name"],
                 where: whereClause,
             })
 
             res.send(this.apiResponse.response(true, query))
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
     async indexWithMainTitle(req: Request, res: Response) {
         try {
-            Main_titles.hasMany(Sub_title, {
-                foreignKey: "main_title_id"
-            })
-
-            const query: any = await Main_titles.findAll({
+            const query = await Main_titles.findAll({
                 include: {
                     model: Sub_title,
                     attributes: ['id', 'main_title_id', 'name'],
@@ -42,8 +39,8 @@ export default class subTitle {
                 attributes: ["id", "name"]
             })
             res.send(this.apiResponse.response(true, query))
-        } catch (error: any) {
-            res.status(500).json(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 }

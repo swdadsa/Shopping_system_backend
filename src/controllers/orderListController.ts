@@ -10,26 +10,24 @@ export default class orderList {
 
     async index(req: Request, res: Response) {
         try {
-            const query: any = await Order_list.findAll({
+            const query = await Order_list.findAll({
                 attributes: ["id", "order_unique_number", "condition", "total_price"],
                 where: {
-                    "user_id": req.query.user_id
+                    "user_id": Number(req.query.user_id)
                 }
             })
             res.send(this.apiResponse.response(true, query))
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
     async indexDetail(req: Request, res: Response) {
         try {
-
-            Order_list_detail.hasMany(Item_images, { foreignKey: "item_id" })
-
-            const queryFindOrderListDetail: any = await Order_list_detail.findAll({
+            const queryFindOrderListDetail = await Order_list_detail.findAll({
                 include: {
                     model: Item_images,
+                    as: "images",
                     attributes: ["path"],
                     where: {
                         "order": 1
@@ -37,42 +35,41 @@ export default class orderList {
                 },
                 attributes: ["id", "order_list_id", "item_id", "amount"],
                 where: {
-                    "order_list_id": req.query.order_list_id
+                    "order_list_id": Number(req.query.order_list_id)
                 }
             })
 
-            const transPath: any = queryFindOrderListDetail.map((index: any, key: any) => {
-                const path = index.Item_images.map((innerIndex: any, innerKey: any) => {
-                    return process.env.APP_URL + innerIndex.path
-                })
+            const transPath = queryFindOrderListDetail.map((index: any, key: any) => {
+                const images = index.images ?? [];
+                const path = images.map((img: any) => process.env.APP_URL + img.path);
 
                 return {
                     ...index?.toJSON(),
-                    Item_images: path[0]
+                    Item_images: path[0] ?? null
                 }
             })
 
-            const queryTotalPrice: any = await Order_list.findOne({
+            const queryTotalPrice = await Order_list.findOne({
                 attributes: ["total_price"],
                 where: {
-                    "id": req.query.order_list_id
+                    "id": Number(req.query.order_list_id)
                 }
             })
 
             const output = {
                 "items": transPath,
-                "totalPrice": queryTotalPrice.total_price
+                "totalPrice": queryTotalPrice?.total_price
             }
 
             res.send(this.apiResponse.response(true, output))
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 
     async changeCondition(req: Request, res: Response) {
         try {
-            const queryFindOrderList: any = await Order_list.findOne({
+            const queryFindOrderList = await Order_list.findOne({
                 where: {
                     "id": req.body.order_list_id
                 }
@@ -87,8 +84,8 @@ export default class orderList {
 
                 res.send(this.apiResponse.response(true, 'update order list condition successfully'))
             }
-        } catch (error: any) {
-            res.status(500).send(this.apiResponse.response(false, error.message))
+        } catch (error) {
+            res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
     }
 }

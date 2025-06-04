@@ -1,44 +1,72 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+// models/Order_list_detail.ts
+import { Model, DataTypes, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
+import Item_images from "../models/Item_images";
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 欄位介面
+interface IOrderListDetailAttributes {
+    id: number;
+    order_list_id: number;
+    item_id: number;
+    amount: number;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+}
 
-let Order_list_detail = sequelize.define('Order_list_detail', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+// 用於 create 時的 Optional 欄位（如 id, createdAt 等自動產生的）
+interface OrderListDetailCreationAttributes extends Optional<IOrderListDetailAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 定義類別
+class OrderListDetail extends Model<IOrderListDetailAttributes, OrderListDetailCreationAttributes> implements IOrderListDetailAttributes {
+    public id!: number;
+    public order_list_id!: number;
+    public item_id!: number;
+    public amount!: number;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+// 初始化模型
+OrderListDetail.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        order_list_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        item_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        amount: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE,
     },
-    order_list_id: {
-        type: DataTypes.INTEGER,
-    },
-    item_id: {
-        type: DataTypes.INTEGER,
-    },
-    amount: {
-        type: DataTypes.INTEGER,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-    },
-    deletedAt: {
-        type: DataTypes.DATE,
+    {
+        sequelize,
+        tableName: 'Order_list_detail',
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true,
     }
-}, {
-    tableName: 'Order_list_detail', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
+);
+
+// 建立關聯
+OrderListDetail.hasMany(Item_images, {
+    foreignKey: "item_id",
+    as: "images",
 });
 
-export default Order_list_detail
+
+
+export default OrderListDetail;

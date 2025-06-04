@@ -1,51 +1,81 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { development } from '../../config/config'
+// models/Items.ts
+import { Model, DataTypes, Optional } from 'sequelize';
+import sequelize from '../../config/sequelize';
+import Item_images from "../models/Item_images";
 
-let sequelize = new Sequelize(development.database, development.username, development.password, {
-    host: development.host,
-    timezone: development.timezone,
-    dialect: development.dialect,
-    dialectOptions: {
-        // Your mysql2 options here
-    },
-});
+// 1. 所有欄位定義
+interface IItemAttributes {
+    id: number;
+    sub_title_id: number;
+    name: string;
+    price: string;
+    storage: number;
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+}
 
-let Items = sequelize.define('Items', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
+// 2. 建立資料時，哪些欄位是選填（如 id, createdAt, deletedAt）
+interface ItemCreationAttributes extends Optional<IItemAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> { }
+
+// 3. 定義類別
+class Item extends Model<IItemAttributes, ItemCreationAttributes>
+    implements IItemAttributes {
+    public id!: number;
+    public sub_title_id!: number;
+    public name!: string;
+    public price!: string;
+    public storage!: number;
+    public description!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date | null;
+}
+
+// 4. 初始化 Model
+Item.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false,
+        },
+        sub_title_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        price: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        storage: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        description: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE,
     },
-    sub_title_id: {
-        type: DataTypes.INTEGER,
-    },
-    name: {
-        type: DataTypes.STRING,
-    },
-    price: {
-        type: DataTypes.STRING,
-    },
-    storage: {
-        type: DataTypes.INTEGER,
-    },
-    description: {
-        type: DataTypes.STRING,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-    },
-    deletedAt: {
-        type: DataTypes.DATE,
+    {
+        sequelize,
+        tableName: 'Items',
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true,
     }
-}, {
-    tableName: 'Items', // 指定現有資料表名
-    freezeTableName: true, // 不要讓 Sequelize 自動改變表名
-    timestamps: true, // 如果沒有 `createdAt` 和 `updatedAt` 欄位，關閉時間戳
-    paranoid: true,// deletedAt 軟刪除
-});
+);
 
-export default Items
+// 建立關聯
+Item.hasMany(Item_images, { foreignKey: "item_id", as: "images" });
+
+export default Item;
