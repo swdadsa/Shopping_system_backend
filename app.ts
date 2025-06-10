@@ -16,7 +16,12 @@ app.use(helmet());
 // serve api
 app.use("/api", defaultRoute);
 // serve image
-app.use("/images", express.static(__dirname + '/src/images'));
+app.use("/images", (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+}, express.static(__dirname + '/src/images'));
+
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`)

@@ -10,45 +10,43 @@ export default class items {
 
     async index(req: Request, res: Response) {
         try {
+            const whereClause: any = {};
+
+            // 如果 query 中有 sub_title_id，加入 where 條件
+            if (req.query.sub_title_id) {
+                whereClause.sub_title_id = Number(req.query.sub_title_id);
+            }
+
             const query = await Items.findAll({
                 include: {
                     model: Item_images,
                     as: "images",
                     attributes: ['id', 'order', 'path'],
                     where: {
-                        "order": 1
+                        order: 1
                     }
                 },
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
-                where: {
-                    "sub_title_id": Number(req.query.sub_title_id)
-                }
-            })
+                where: whereClause
+            });
 
-            if (query) {
-                // Transform query data by adding APP_URL to path
-                const transformedData = query.map((item: any) => {
-                    const images = item.images ?? [];
-                    const fixPath = item.images.map((values: any) => {
-                        return process.env.APP_URL + values.path
+            // transform
+            const transformedData = query.map((item: any) => {
+                const images = item.images ?? [];
+                const fixPath = images.map((values: any) => process.env.APP_URL + values.path);
 
-                    })
-                    return {
-                        ...item.toJSON(),
-                        Item_images: fixPath[0]
-                    }
+                return {
+                    ...item.toJSON(),
+                    Item_images: fixPath[0] ?? null
+                };
+            });
 
-                });
-
-                res.send(this.apiResponse.response(true, transformedData));
-            } else {
-                res.send(this.apiResponse.response(true, []));
-            }
-
+            res.send(this.apiResponse.response(true, transformedData));
         } catch (error) {
-            res.status(500).send(this.apiResponse.response(false, 'Unexpected error:' + error));
+            res.status(500).send(this.apiResponse.response(false, 'Unexpected error: ' + (error instanceof Error ? error.message : String(error))));
         }
     }
+
 
     async store(req: Request, res: Response) {
         try {

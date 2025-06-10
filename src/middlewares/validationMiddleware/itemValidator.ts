@@ -38,7 +38,7 @@ export const validateItemShow = (req: Request, res: Response, next: NextFunction
 // 清單驗證
 export const validateItemIndex = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
-        sub_title_id: Joi.number().required(),
+        sub_title_id: Joi.number(),
     });
 
     const { error } = schema.validate(req.query);
