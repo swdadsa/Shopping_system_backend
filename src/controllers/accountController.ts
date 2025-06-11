@@ -25,48 +25,68 @@ export default class account {
     // 登入
     async signIn(req: Request, res: Response) {
         try {
-            const { username, password } = req.body;
-            const query = await User.findOne({
-                attributes: ['id', 'username', 'password', 'permissions'],
-                where: {
-                    "username": username,
-                    "isVerified": 1
-                }
-            })
+            const { username, email, password } = req.body;
 
-            if (query) {
-                let hashPassword = query.password;
-                // hash check password
-                const match = await bcrypt.compare(password, hashPassword);
-                if (!match) {
-                    res.status(400).send(this.apiResponse.response(false, 'account\'s password is wrong'));
-                } else {
-                    // 設定加密強度，通常 10-12 是合理範圍
-                    const saltRounds = 10;
-                    // 用帳號新增token
-                    let hashedToken = await bcrypt.hash(query.username, saltRounds);
-
-                    let output = {
-                        "id": query.id,
-                        "username": query.username,
-                        'permissions': query.permissions,
-                        "token": hashedToken
-                    }
-                    // 新增token紀錄
-                    const queryCreateTokenRecord = await User_token.create({
-                        "user_id": output.id,
-                        "token": hashedToken,
-                        "expiredAt": new Date(Date.now() + 30 * 60 * 1000) // Add 10 minutes
-                    })
-                    res.send(this.apiResponse.response(true, output))
-                }
-            } else {
-                res.send(this.apiResponse.response(false, 'account not find or not verified'))
+            // 驗證輸入
+            if ((!username && !email) || !password) {
+                res.status(400).send(this.apiResponse.response(false, '請輸入帳號/信箱與密碼'));
             }
+
+            // 根據輸入選擇查詢欄位
+            const whereCondition: any = {
+                isVerified: 1
+            };
+
+            if (username) {
+                whereCondition.username = username;
+            } else if (email) {
+                whereCondition.email = email;
+            }
+
+            // 查詢使用者
+            const user = await User.findOne({
+                attributes: ['id', 'username', 'password', 'permissions'],
+                where: whereCondition
+            });
+
+            if (!user) {
+                res.send(this.apiResponse.response(false, '帳號不存在或尚未驗證'));
+            } else {// 驗證密碼
+                const match = await bcrypt.compare(password, user.password);
+                if (!match) {
+                    res.status(400).send(this.apiResponse.response(false, '密碼錯誤'));
+                }
+
+                // 產生 Token
+                const saltRounds = 10;
+                const hashedToken = await bcrypt.hash(user.username, saltRounds);
+
+                const output = {
+                    id: user.id,
+                    username: user.username,
+                    permissions: user.permissions,
+                    token: hashedToken
+                };
+
+                // 儲存 token 記錄
+                await User_token.create({
+                    user_id: user.id,
+                    token: hashedToken,
+                    expiredAt: new Date(Date.now() + 30 * 60 * 1000) // 30 分鐘後過期
+                });
+
+                res.send(this.apiResponse.response(true, output));
+            }
+
+
+
         } catch (error) {
-            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+            res.status(500).json(
+                this.apiResponse.response(false, error instanceof Error ? error.message : String(error))
+            );
         }
     }
+
 
     // 註冊
     async signUp(req: Request, res: Response) {

@@ -6,7 +6,8 @@ import { apiResponse } from "../../response/apiResponse";
 // 登入驗證
 export const validateSignIn = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
-        username: Joi.string().min(8).max(12).required(),
+        username: Joi.string().min(8).max(12),
+        email: Joi.string().email(),
         password: Joi.string().min(8).max(12).required(),
     });
 
