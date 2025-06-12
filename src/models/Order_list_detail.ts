@@ -1,7 +1,7 @@
 // models/Order_list_detail.ts
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/sequelize';
-import Item_images from "../models/Item_images";
+import Item_images from "./Item_images";
 
 // 欄位介面
 interface IOrderListDetailAttributes {

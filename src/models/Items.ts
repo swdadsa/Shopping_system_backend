@@ -1,7 +1,7 @@
 // models/Items.ts
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/sequelize';
-import Item_images from "../models/Item_images";
+import Item_images from "./Item_images";
 
 // 1. 所有欄位定義
 interface IItemAttributes {
