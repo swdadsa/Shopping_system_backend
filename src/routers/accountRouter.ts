@@ -1,6 +1,14 @@
 import { Router } from "express";
 import account from "../controllers/accountController"
-import { validateSignIn, validateSignUp, validateSignOut, validateDeleteAccount, validateProfiles, validateUpdateProfiles } from "../middlewares/validationMiddleware/accountValidator";
+import {
+    validateSignIn,
+    validateSignUp,
+    validateSignOut,
+    validateDeleteAccount,
+    validateProfiles,
+    validateUpdateProfiles,
+    validateUpdatePassword
+} from "../middlewares/validationMiddleware/accountValidator";
 import { checkToken } from "../middlewares/checkToken";
 
 class accountRouter {
@@ -37,6 +45,10 @@ class accountRouter {
             checkToken,
             validateUpdateProfiles,
             (req, res) => this.accountController.updateProfiles(req, res))
+        this.router.patch("/updatePassword",
+            checkToken,
+            validateUpdatePassword,
+            (req, res) => this.accountController.updatePassword(req, res))
         this.router.get("/verifyAccount",
             (req, res) => this.accountController.verifyAccount(req, res))
     }

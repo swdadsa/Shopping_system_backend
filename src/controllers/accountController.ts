@@ -51,7 +51,8 @@ export default class account {
 
             if (!user) {
                 res.send(this.apiResponse.response(false, '帳號不存在或尚未驗證'));
-            } else {// 驗證密碼
+            } else {
+                // 驗證密碼
                 const match = await bcrypt.compare(password, user.password);
                 if (!match) {
                     res.status(400).send(this.apiResponse.response(false, '密碼錯誤'));
@@ -203,6 +204,53 @@ export default class account {
                 res.send(this.apiResponse.response(true, 'update profiles successfully'))
             } else {
                 res.status(500).json(this.apiResponse.response(false, 'update profiles failed'))
+            }
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+        }
+    }
+
+    // 修改密碼
+    async updatePassword(req: Request, res: Response) {
+        try {
+            //用token檢查更新密碼的使用者
+            const tokenOner = await User_token.findOne({
+                attributes: ['user_id'],
+                where: {
+                    "token": req.headers.token,
+                }
+            })
+
+            // 是否有token
+            if (tokenOner != null) {
+                const userQuery = await User.findOne({
+                    attributes: ['id', 'password'],
+                    where: {
+                        "id": tokenOner.user_id
+                    }
+                })
+                // 是否有該使用者
+                if (userQuery != null) {
+                    // 檢查舊密碼
+                    const checkPassword = await bcrypt.compare(req.body.oldPassword, userQuery.password)
+
+                    if (checkPassword) {
+                        userQuery.update({
+                            "password": await bcrypt.hash(req.body.newPassword, 10)
+                        }, {
+                            where: {
+                                "id": tokenOner.user_id
+                            }
+                        })
+
+                        res.send(this.apiResponse.response(true, 'update password successfully'))
+                    } else {
+                        res.status(500).json(this.apiResponse.response(false, 'update password failed'))
+                    }
+
+                }
+            } else {
+                res.status(500).json(this.apiResponse.response(false, 'update password failed'))
             }
         } catch (error) {
             res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))

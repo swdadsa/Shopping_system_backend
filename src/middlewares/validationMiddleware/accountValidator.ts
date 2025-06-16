@@ -92,3 +92,18 @@ export const validateUpdateProfiles = (req: Request, res: Response, next: NextFu
     }
     next();
 };
+
+// 更新密碼驗證
+export const validateUpdatePassword = (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object({
+        newPassword: Joi.string().min(8).max(12).required(),
+        oldPassword: Joi.string().min(8).max(12).required()
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json(new apiResponse().response(false, error.details[0].message));
+        return;
+    }
+    next();
+};
