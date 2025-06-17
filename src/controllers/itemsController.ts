@@ -4,6 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import Items from "../models/Items";
 import Item_images from "../models/Item_images";
+import { Op } from "sequelize";
+import Discount from "../models/Discount";
 
 export default class items {
     public apiResponse = new apiResponse
@@ -11,21 +13,44 @@ export default class items {
     async index(req: Request, res: Response) {
         try {
             const whereClause: any = {};
+            const discountWhereClause: any = {};
 
             // 如果 query 中有 sub_title_id，加入 where 條件
             if (req.query.sub_title_id) {
                 whereClause.sub_title_id = Number(req.query.sub_title_id);
             }
 
+            // 如果 query 中有 searchKeyword，加入 name 的模糊搜尋條件
+            if (req.query.searchKeyword) {
+                const searchKeyword = String(req.query.searchKeyword);
+                whereClause.name = {
+                    [Op.like]: `%${searchKeyword}%`
+                };
+            }
+
+            // 如果有搜尋date 則過濾discount
+            if (req.query.date) {
+                discountWhereClause.startAt = { [Op.lte]: new Date(req.query.date as string) };
+                discountWhereClause.endAt = { [Op.gte]: new Date(req.query.date as string) };
+            }
+
             const query = await Items.findAll({
-                include: {
-                    model: Item_images,
-                    as: "images",
-                    attributes: ['id', 'order', 'path'],
-                    where: {
-                        order: 1
+                include: [
+                    {
+                        model: Item_images,
+                        as: "images",
+                        attributes: ['id', 'order', 'path'],
+                        where: {
+                            order: 1
+                        }
+                    },
+                    {
+                        model: Discount,
+                        as: "discounts",
+                        attributes: ['id', 'item_id', 'startAt', 'endAt', 'discountPercent'],
+                        where: discountWhereClause
                     }
-                },
+                ],
                 attributes: ["id", "sub_title_id", "name", "price", "storage"],
                 where: whereClause
             });
@@ -46,6 +71,7 @@ export default class items {
             res.status(500).send(this.apiResponse.response(false, 'Unexpected error: ' + (error instanceof Error ? error.message : String(error))));
         }
     }
+
 
 
     async store(req: Request, res: Response) {

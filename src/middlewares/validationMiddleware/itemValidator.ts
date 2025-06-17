@@ -39,6 +39,8 @@ export const validateItemShow = (req: Request, res: Response, next: NextFunction
 export const validateItemIndex = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
         sub_title_id: Joi.number(),
+        searchKeyword: Joi.string(),
+        date: Joi.date(),
     });
 
     const { error } = schema.validate(req.query);

@@ -6,6 +6,7 @@ import itemsRouter from "./itemsRouter";
 import cartRouter from "./cartRouter";
 import orderListRouter from "./orderListRouter";
 import advertisementRouter from "./advertisementRouter";
+import discountRouter from "./discountRouter";
 
 const defaultRoute = Router();
 const classAccountRouter = new accountRouter()
@@ -15,6 +16,7 @@ const classItemsRouter = new itemsRouter()
 const classCartRouter = new cartRouter()
 const classOrderListRouter = new orderListRouter()
 const classAdvertisementRouter = new advertisementRouter()
+const classDiscountRouter = new discountRouter()
 
 defaultRoute.use("/account", express.json(), classAccountRouter.router)
 defaultRoute.use("/mainTitle", express.json(), classMainTitleRouter.router)
@@ -23,5 +25,6 @@ defaultRoute.use("/items", express.json(), classItemsRouter.router)
 defaultRoute.use("/cart", express.json(), classCartRouter.router)
 defaultRoute.use("/orderList", express.json(), classOrderListRouter.router)
 defaultRoute.use("/advertisement", express.json(), classAdvertisementRouter.router)
+defaultRoute.use("/discount", express.json(), classDiscountRouter.router)
 
 export { defaultRoute };

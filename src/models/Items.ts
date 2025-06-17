@@ -2,6 +2,7 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/sequelize';
 import Item_images from "./Item_images";
+import Discount from './Discount';
 
 // 1. 所有欄位定義
 interface IItemAttributes {
@@ -77,5 +78,7 @@ Item.init(
 
 // 建立關聯
 Item.hasMany(Item_images, { foreignKey: "item_id", as: "images" });
+// 建立折扣關聯
+Item.hasMany(Discount, { foreignKey: "item_id", as: "discounts" });
 
 export default Item;
