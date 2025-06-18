@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { apiResponse } from "../response/apiResponse";
 import Sub_title from "../models/Sub_titles";
 import Main_titles from "../models/Main_titles";
+import { getCache, setCache } from "../utils/redisCache";
 
 export default class subTitle {
     public apiResponse = new apiResponse
@@ -29,17 +30,14 @@ export default class subTitle {
 
     async indexWithMainTitle(req: Request, res: Response) {
         try {
-            const CACHE_KEY = "main_titles_with_sub_titles";
-            const CACHE_TTL = 600; // 秒 (10 分鐘)
-
+            const CACHE_KEY = "subTitleController:indexWithMainTitle";
+            const CACHE_TTL = 600; // (10 分鐘)
             const redis = req.app.locals.redis;
 
             // 檢查 Redis 是否有快取
-            const cached = await redis.get(CACHE_KEY);
+            const cached = await getCache(redis, CACHE_KEY);
             if (cached) {
-                console.log('使用快取');
-                const parsed = JSON.parse(cached);
-                res.send(this.apiResponse.response(true, parsed));
+                res.send(this.apiResponse.response(true, cached));
             } else {
                 const query = await Main_titles.findAll({
                     include: {
@@ -51,10 +49,7 @@ export default class subTitle {
                     attributes: ["id", "name"]
                 })
 
-                // 存入 Redis 快取，10 分鐘有效
-                await redis.set(CACHE_KEY, JSON.stringify(query), {
-                    EX: CACHE_TTL,
-                });
+                await setCache(redis, CACHE_KEY, query, CACHE_TTL); // 快取 10 分鐘
 
                 res.send(this.apiResponse.response(true, query))
             }

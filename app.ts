@@ -4,7 +4,7 @@ import { defaultRoute } from './src/routers/router'
 import helmet from "helmet";
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { createClient } from "redis";
+import { initRedis } from './src/middlewares/redisClient';
 
 dotenv.config();
 
@@ -16,19 +16,7 @@ app.use(cors());
 app.use(helmet());
 
 // 建立 Redis client 並連線
-const redisClient = createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
-});
-
-redisClient.connect()
-    .then(() => console.log('Redis connected'))
-    .catch((err) => {
-        console.error('Redis connection error:', err);
-        process.exit(1);
-    });
-
-// 儲存 Redis client 到 app.locals
-app.locals.redis = redisClient;
+initRedis(app);
 
 // 使用 API 路由
 app.use("/api", defaultRoute);
