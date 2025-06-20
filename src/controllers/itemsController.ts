@@ -62,7 +62,7 @@ export default class items {
                         {
                             model: Discount,
                             as: "discounts",
-                            attributes: ['id', 'item_id', 'startAt', 'endAt', 'discountPercent'],
+                            attributes: ['id', 'item_id', 'startAt', 'endAt', 'discountNumber', 'discountPercent'],
                             where: discountWhereClause,
                             required: false
                         }
@@ -231,7 +231,7 @@ export default class items {
                         {
                             model: Discount,
                             as: "discounts",
-                            attributes: ['id', 'item_id', 'startAt', 'endAt', 'discountPercent'],
+                            attributes: ['id', 'item_id', 'startAt', 'endAt', 'discountNumber', 'discountPercent'],
                             where: {
                                 startAt: { [Op.lte]: date },
                                 endAt: { [Op.gte]: date },

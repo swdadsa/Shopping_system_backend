@@ -10,7 +10,7 @@ export default class discount {
         try {
             const query = await Discount.findAll(
                 {
-                    attributes: ["id", "item_id", "discountPercent", "startAt", "endAt"]
+                    attributes: ["id", "item_id", "discountNumber", "discountPercent", "startAt", "endAt"]
                 }
             )
 
@@ -50,10 +50,11 @@ export default class discount {
     // 新增優惠券
     async store(req: Request, res: Response) {
         try {
-            const { item_id, discountPercent, startAt, endAt } = req.body
+            const { item_id, discountNumber, discountPercent, startAt, endAt } = req.body
             const query = await Discount.create({
                 "item_id": item_id,
-                "discountPercent": discountPercent,
+                "discountNumber": discountNumber ?? null,
+                "discountPercent": discountPercent ?? null,
                 "startAt": startAt,
                 "endAt": endAt
             })

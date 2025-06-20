@@ -13,9 +13,13 @@ export default {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      discountNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       discountPercent: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       startAt: {
         type: DataTypes.DATE,
