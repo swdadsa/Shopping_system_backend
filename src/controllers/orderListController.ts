@@ -3,6 +3,7 @@ import { apiResponse } from "../response/apiResponse";
 import Order_list from "../models/Order_list";
 import Order_list_detail from "../models/Order_list_detail";
 import Item_images from "../models/Item_images";
+import Item from "../models/Items";
 
 
 export default class orderList {
@@ -25,14 +26,19 @@ export default class orderList {
     async indexDetail(req: Request, res: Response) {
         try {
             const queryFindOrderListDetail = await Order_list_detail.findAll({
-                include: {
-                    model: Item_images,
-                    as: "images",
-                    attributes: ["path"],
-                    where: {
-                        "order": 1
-                    }
-                },
+                include: [
+                    {
+                        model: Item_images,
+                        as: "images",
+                        attributes: ["path"],
+                        where: {
+                            "order": 1
+                        }
+                    }, {
+                        model: Item,
+                        as: "item",
+                        attributes: ["name", "price"],
+                    }],
                 attributes: ["id", "order_list_id", "item_id", "amount"],
                 where: {
                     "order_list_id": Number(req.query.order_list_id)
@@ -43,8 +49,17 @@ export default class orderList {
                 const images = index.images ?? [];
                 const path = images.map((img: any) => process.env.APP_URL + img.path);
 
+                const item = index.item ?? {};
+                const price = item.price ?? 0;
+                const name = item.name ?? '';
+
                 return {
-                    ...index?.toJSON(),
+                    id: index.id,
+                    order_list_id: index.order_list_id,
+                    item_id: index.item_id,
+                    amount: index.amount,
+                    price: price,
+                    name: name,
                     Item_images: path[0] ?? null
                 }
             })

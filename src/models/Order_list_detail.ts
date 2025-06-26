@@ -2,6 +2,7 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/sequelize';
 import Item_images from "./Item_images";
+import Item from "./Items";
 
 // 欄位介面
 interface IOrderListDetailAttributes {
@@ -67,6 +68,12 @@ OrderListDetail.hasMany(Item_images, {
     as: "images",
 });
 
+
+// 建立關聯
+OrderListDetail.hasOne(Item, {
+    foreignKey: "id",
+    as: "item",
+});
 
 
 export default OrderListDetail;
