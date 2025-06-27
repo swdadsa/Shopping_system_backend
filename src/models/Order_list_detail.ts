@@ -62,15 +62,10 @@ OrderListDetail.init(
     }
 );
 
-// 建立關聯
-OrderListDetail.hasMany(Item_images, {
-    foreignKey: "item_id",
-    as: "images",
-});
-
 
 // 建立關聯
 OrderListDetail.hasOne(Item, {
+    sourceKey: "item_id",
     foreignKey: "id",
     as: "item",
 });

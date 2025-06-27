@@ -4,6 +4,8 @@ import Order_list from "../models/Order_list";
 import Order_list_detail from "../models/Order_list_detail";
 import Item_images from "../models/Item_images";
 import Item from "../models/Items";
+import { Op } from "sequelize";
+import Discount from "../models/Discount";
 
 
 export default class orderList {
@@ -28,41 +30,55 @@ export default class orderList {
             const queryFindOrderListDetail = await Order_list_detail.findAll({
                 include: [
                     {
-                        model: Item_images,
-                        as: "images",
-                        attributes: ["path"],
-                        where: {
-                            "order": 1
-                        }
-                    }, {
                         model: Item,
                         as: "item",
-                        attributes: ["name", "price"],
+                        attributes: ["id", "name", "price"],
+                        include: [
+                            {
+                                model: Item_images,
+                                as: "images",
+                                attributes: ["path"],
+                                where: {
+                                    "order": 1
+                                }
+                            }
+                        ]
                     }],
-                attributes: ["id", "order_list_id", "item_id", "amount"],
+                attributes: ["id", "order_list_id", "item_id", "amount", "createdAt"],
                 where: {
                     "order_list_id": Number(req.query.order_list_id)
                 }
             })
+            const transPath = await Promise.all(
+                queryFindOrderListDetail.map(async (index: any, key: any) => {
+                    const images = index.item?.images ?? [];
+                    const path = images.map((img: any) => process.env.APP_URL + img.path);
 
-            const transPath = queryFindOrderListDetail.map((index: any, key: any) => {
-                const images = index.images ?? [];
-                const path = images.map((img: any) => process.env.APP_URL + img.path);
+                    const item = index.item ?? {};
+                    const price = item.price ?? 0;
+                    const name = item.name ?? '';
 
-                const item = index.item ?? {};
-                const price = item.price ?? 0;
-                const name = item.name ?? '';
+                    const queryDiscount = await Discount.findOne({
+                        attributes: ["discountNumber", "discountPercent"],
+                        where: {
+                            "startAt": { [Op.lte]: index.createdAt },
+                            "endAt": { [Op.gte]: index.createdAt },
+                            "item_id": index.item_id
+                        }
+                    })
 
-                return {
-                    id: index.id,
-                    order_list_id: index.order_list_id,
-                    item_id: index.item_id,
-                    amount: index.amount,
-                    price: price,
-                    name: name,
-                    Item_images: path[0] ?? null
-                }
-            })
+                    return {
+                        id: index.id,
+                        order_list_id: index.order_list_id,
+                        item_id: index.item_id,
+                        amount: index.amount,
+                        price: price,
+                        name: name,
+                        Item_images: path[0] ?? null,
+                        discount: queryDiscount ?? []
+                    }
+                })
+            );
 
             const queryTotalPrice = await Order_list.findOne({
                 attributes: ["total_price"],
