@@ -58,7 +58,7 @@ export default class orderList {
                     const price = item.price ?? 0;
                     const name = item.name ?? '';
 
-                    const queryDiscount = await Discount.findOne({
+                    const queryDiscount = await Discount.findAll({
                         attributes: ["discountNumber", "discountPercent"],
                         where: {
                             "startAt": { [Op.lte]: index.createdAt },

@@ -6,6 +6,10 @@ import Cart from "../models/Cart";
 import sequelize from "sequelize";
 import Order_list from "../models/Order_list";
 import Order_list_detail from "../models/Order_list_detail";
+import Discount from "../models/Discount";
+import { Op } from "sequelize";
+import dayjs from "dayjs";
+import { disconnect } from "process";
 
 export default class cart {
     public apiResponse = new apiResponse
@@ -30,6 +34,7 @@ export default class cart {
     async show(req: Request, res: Response) {
         try {
             const user_id = req.query.user_id
+            const date = dayjs().format('YYYY-MM-DD');
 
             // search all cart items
             const query = await Cart.findAll({
@@ -44,27 +49,53 @@ export default class cart {
             // transform data  (item detail and item price times amout to show total price)
             const output = await Promise.all(
                 query.map(async (value: any) => {
-                    // calculate total price
-                    let totalPrice = 'price * ' + value.get('amount');
-
                     const item: any = await Items.findOne({
-                        include: {
-                            model: Item_images,
-                            as: "images",
-                            attributes: ['path'],
-                            where: {
-                                "order": 1
+                        include: [
+                            {
+                                model: Item_images,
+                                as: "images",
+                                attributes: ['path'],
+                                where: {
+                                    "order": 1
+                                },
+                                required: false
+                            },
+                            {
+                                model: Discount,
+                                as: "discounts",
+                                attributes: ['id', 'startAt', 'endAt', 'discountNumber', 'discountPercent'],
+                                where: {
+                                    startAt: { [Op.lte]: date },
+                                    endAt: { [Op.gte]: date },
+                                },
+                                required: false
                             }
-                        },
-                        attributes: ["id", "name", "price", [sequelize.literal(totalPrice), 'totalPrice'], "storage"],
+                        ],
+                        attributes: ["id", "name", "price", "storage"],
                         where: {
                             "id": value.item_id
                         }
                     });
 
+                    let totalPrice = item.price * value.get('amount')
+                    if (item.discounts.length > 0) {
+                        if (item.discounts[0].discountNumber !== null) {
+                            totalPrice -= (item.discounts[0].discountNumber * value.get('amount'))
+                        }
+
+                        if (item.discounts[0].discountPercent !== null) {
+                            totalPrice = Math.floor(totalPrice * (1 - item.discounts[0].discountPercent / 100));
+                        }
+                    }
+
                     return {
-                        ...item?.toJSON(),
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        totalPrice: totalPrice,
+                        storage: item.storage,
                         amount: value.get('amount'),
+                        discount: item.discounts ?? [],
                         path: process.env.APP_URL + item.images[0].path
                     };
                 })
