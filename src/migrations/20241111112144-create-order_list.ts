@@ -23,7 +23,7 @@ export default {
       },
       total_price: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,

@@ -56,30 +56,28 @@ export default class account {
                 const match = await bcrypt.compare(password, user.password);
                 if (!match) {
                     res.status(400).send(this.apiResponse.response(false, '密碼錯誤'));
+                } else {
+                    // 密碼正確，產生 Token
+                    const saltRounds = 10;
+                    const hashedToken = await bcrypt.hash(user.username, saltRounds);
+
+                    const output = {
+                        id: user.id,
+                        username: user.username,
+                        permissions: user.permissions,
+                        token: hashedToken
+                    };
+
+                    // 儲存 token 記錄
+                    await User_token.create({
+                        user_id: user.id,
+                        token: hashedToken,
+                        expiredAt: new Date(Date.now() + 30 * 60 * 1000) // 30 分鐘後過期
+                    });
+
+                    res.send(this.apiResponse.response(true, output));
                 }
-
-                // 產生 Token
-                const saltRounds = 10;
-                const hashedToken = await bcrypt.hash(user.username, saltRounds);
-
-                const output = {
-                    id: user.id,
-                    username: user.username,
-                    permissions: user.permissions,
-                    token: hashedToken
-                };
-
-                // 儲存 token 記錄
-                await User_token.create({
-                    user_id: user.id,
-                    token: hashedToken,
-                    expiredAt: new Date(Date.now() + 30 * 60 * 1000) // 30 分鐘後過期
-                });
-
-                res.send(this.apiResponse.response(true, output));
             }
-
-
 
         } catch (error) {
             res.status(500).json(

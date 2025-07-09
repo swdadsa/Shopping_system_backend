@@ -5,8 +5,8 @@ import sequelize from '../../config/sequelize';
 interface DiscountAttributes {
   id: number;
   item_id: number;
-  discountNumber: string;
-  discountPercent: string;
+  discountNumber: string | null;
+  discountPercent: string | null;
   startAt: Date;
   endAt: Date;
   createdAt?: Date;
@@ -22,8 +22,8 @@ class Discount extends Model<DiscountAttributes, DiscountCreationAttributes> imp
   public id!: number;
   public user_id!: number;
   public item_id!: number;
-  public discountNumber!: string;
-  public discountPercent!: string;
+  public discountNumber!: string | null;
+  public discountPercent!: string | null;
   public startAt!: Date;
   public endAt!: Date;
   public createdAt!: Date;

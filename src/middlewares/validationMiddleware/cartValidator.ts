@@ -22,7 +22,6 @@ export const validateCartStore = (req: Request, res: Response, next: NextFunctio
 export const validateCartSubmit = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
         user_id: Joi.number().required(),
-        total_price: Joi.number().required(),
         item: Joi.array().required(),
     });
 

@@ -7,7 +7,7 @@ interface IOrderListAttributes {
     order_unique_number: string;
     user_id: number;
     condition: number;
-    total_price: number;
+    total_price: number | null;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
@@ -22,7 +22,7 @@ class OrderList extends Model<IOrderListAttributes, IOrderListCreationAttributes
     public order_unique_number!: string;
     public user_id!: number;
     public condition!: number;
-    public total_price!: number;
+    public total_price!: number | null;
     public createdAt!: Date;
     public updatedAt!: Date;
     public deletedAt!: Date | null;

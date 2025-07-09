@@ -9,7 +9,6 @@ import Order_list_detail from "../models/Order_list_detail";
 import Discount from "../models/Discount";
 import { Op } from "sequelize";
 import dayjs from "dayjs";
-import { disconnect } from "process";
 
 export default class cart {
     public apiResponse = new apiResponse
@@ -170,16 +169,48 @@ export default class cart {
     async submit(req: Request, res: Response) {
         try {
             const body = req.body
+            let totalPrice = 0
 
             // create order list
             const createOrderList: any = await Order_list.create({
                 "order_unique_number": body.user_id + '-' + Date.now() + '-' + Math.round(Math.random() * 10000),
                 "user_id": body.user_id,
-                "condition": 0,
-                "total_price": body.total_price
+                "condition": 0
             })
+
             if (createOrderList) {
-                body.item.map(async (index: any, key: any) => {
+                const itemPromises = body.item.map(async (index: any, key: any) => {
+                    // find item
+                    const queryItem = await Items.findOne({
+                        attributes: ["id", "name", "price"],
+                        where: {
+                            "id": index.id
+                        }
+                    })
+
+                    // check discount
+                    const date = dayjs().format('YYYY-MM-DD');
+                    const queryDiscount = await Discount.findOne({
+                        attributes: ["id", "startAt", "endAt", "discountNumber", "discountPercent"],
+                        where: {
+                            startAt: { [Op.lte]: date },
+                            endAt: { [Op.gte]: date },
+                            "item_id": index.id
+                        },
+                    });
+
+                    if (queryDiscount != null && queryItem != null) {
+                        if (queryDiscount.discountNumber !== null && queryDiscount.discountNumber !== undefined) {
+                            const price = (Number(queryItem.price) - Number(queryDiscount.discountNumber))
+                            totalPrice = totalPrice + (price * index.amount)
+                        }
+
+                        if (queryDiscount.discountPercent !== null && queryDiscount.discountPercent !== undefined) {
+                            const price = Math.floor(Number(queryItem.price) * (1 - Number(queryDiscount.discountPercent) / 100))
+                            totalPrice = totalPrice + (price * index.amount)
+                        }
+                    }
+
                     // create order list deatil
                     await Order_list_detail.create({
                         "order_list_id": createOrderList.id,
@@ -204,17 +235,28 @@ export default class cart {
                                     "id": findOneItemFromCart.id
                                 }
                             })
-                        } else {
-                            res.status(500).send(this.apiResponse.response(false, 'delete item from cart failed'))
-                            return
                         }
                     }
                 })
+
+                // waitting item promise
+                await Promise.all(itemPromises);
+
+                // update total price
+                const updateOrderList = await Order_list.update(
+                    {
+                        "total_price": Number(totalPrice)
+                    },
+                    {
+                        where: {
+                            "id": Number(createOrderList.id)
+                        }
+                    })
+
+                res.send(this.apiResponse.response(true, 'create order list successfully'))
             } else {
                 res.status(500).send(this.apiResponse.response(false, 'create order list error'))
             }
-
-            res.send(this.apiResponse.response(true, 'create order list successfully'))
         } catch (error) {
             res.status(500).send(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
         }
