@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import User_token from "../models/User_token";
+import User_role from "../models/User_role";
 import { apiResponse } from "../response/apiResponse";
 import bcrypt from 'bcrypt';
 import { Op } from "sequelize";
 import { generateVerificationToken, verifyToken } from "../utils/jwt";
 import { sendVerificationEmail } from "../utils/emailSender";
+import Roles from "../models/Roles";
 
 export default class account {
     public apiResponse = new apiResponse
@@ -61,10 +63,26 @@ export default class account {
                     const saltRounds = 10;
                     const hashedToken = await bcrypt.hash(user.username, saltRounds);
 
+                    // 尋找role permission
+                    const queryRole = await Roles.findOne({
+                        include: [
+                            {
+                                model: User_role,
+                                attributes: ['id', 'user_id', 'role_id'],
+                                where: {
+                                    user_id: user.id
+                                }
+                            }
+                        ],
+                        attributes: ['name', 'chinese_name', 'permission'],
+                    });
+
                     const output = {
                         id: user.id,
                         username: user.username,
-                        permissions: user.permissions,
+                        permissions: queryRole == null ? null : queryRole.permission,
+                        name: queryRole == null ? null : queryRole.name,
+                        chinese_name: queryRole == null ? null : queryRole.chinese_name,
                         token: hashedToken
                     };
 
@@ -90,7 +108,7 @@ export default class account {
     // 註冊
     async signUp(req: Request, res: Response) {
         try {
-            const { username, password, email, permissions } = req.body;
+            const { username, password, email } = req.body;
             const querySearchExistAccount = await User.findOne({
                 attributes: ['id'],
                 where: {
@@ -101,15 +119,21 @@ export default class account {
             if (querySearchExistAccount) {
                 res.send(this.apiResponse.response(false, 'account or email is already exist'))
             } else {
-                const query = User.create({
+                const query = await User.create({
                     "username": username,
                     "email": email,
                     "password": await bcrypt.hash(password, 10),
-                    "permissions": permissions,
                     "isVerified": false,
                 })
-                if (query instanceof User) {
+                if (query) {
+                    // 創建身分
+                    await User_role.create({
+                        "user_id": query.id,
+                        "role_id": 1 // 預設為使用者
+                    })
+                    // 產生驗證 token
                     const token = generateVerificationToken(email);
+                    // 發送驗證郵件
                     await sendVerificationEmail(email, token)
                     res.send(this.apiResponse.response(true, 'We already send a verify mail to you, please checkout you email'))
                 } else {

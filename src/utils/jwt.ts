@@ -9,3 +9,8 @@ export function verifyToken(token: string): any {
     const secretKey = process.env.JWT_SECRET || "y6FzT!32b4X$1eP9JqK%87^nV0rW+m@d";
     return jwt.verify(token, secretKey);
 }
+
+export function generateSignInToken(username: string, email: string): string {
+    const secretKey = process.env.JWT_SECRET || "y6FzT!32b4X$1eP9JqK%87^nV0rW+m@d";
+    return jwt.sign({ "username": username, "email": email }, secretKey);
+}

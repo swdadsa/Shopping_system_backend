@@ -24,7 +24,6 @@ export const validateSignUp = (req: Request, res: Response, next: NextFunction) 
         username: Joi.string().min(8).max(12).required(),
         password: Joi.string().min(8).max(12).required(),
         email: Joi.string().email().required(),
-        permissions: Joi.number().optional()
     });
 
     const { error } = schema.validate(req.body);

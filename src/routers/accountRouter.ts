@@ -10,6 +10,7 @@ import {
     validateUpdatePassword
 } from "../middlewares/validationMiddleware/accountValidator";
 import { checkToken } from "../middlewares/checkToken";
+import { checkRole } from "../middlewares/checkRole";
 
 class accountRouter {
     public router: Router
@@ -36,6 +37,7 @@ class accountRouter {
             (req, res) => this.accountController.deleteAccount(req, res))
         this.router.get("/list",
             checkToken,
+            checkRole(["manager"]),
             (req, res) => this.accountController.list(req, res))
         this.router.get("/profiles",
             checkToken,

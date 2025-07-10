@@ -1,12 +1,12 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/sequelize';
+import UserRole from './User_role';
 
 interface IUserAttributes {
     id: number;
     username: string;
     email: string;
     password: string;
-    permissions: number;
     isVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -20,7 +20,6 @@ class User extends Model<IUserAttributes, IUserCreationAttributes> implements IU
     public username!: string;
     public email!: string;
     public password!: string;
-    public permissions!: number;
     public isVerified!: boolean;
     public createdAt!: Date;
     public updatedAt!: Date;
@@ -37,7 +36,6 @@ User.init(
         username: DataTypes.STRING,
         email: DataTypes.STRING,
         password: DataTypes.STRING,
-        permissions: DataTypes.TINYINT,
         isVerified: DataTypes.BOOLEAN,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
@@ -51,5 +49,8 @@ User.init(
         paranoid: true,
     }
 );
+
+//建立User role 關聯
+User.hasMany(UserRole, { foreignKey: 'user_id' });
 
 export default User;
