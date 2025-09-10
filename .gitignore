@@ -3,3 +3,4 @@ dist/
 src/log
 src/images/temps
 .env
+coverage/
