@@ -16,6 +16,9 @@ class discountRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.discountController.unitTest(req, res))
+
         this.router.get("/index",
             validateIndex,
             (req, res) => this.discountController.index(req, res))

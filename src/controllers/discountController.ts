@@ -6,6 +6,14 @@ import { Op } from "sequelize";
 export default class discount {
     public apiResponse = new apiResponse
 
+    unitTest(req: Request, res: Response) {
+        try {
+            res.send(this.apiResponse.response(true, 'discount unit test'))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+        }
+    }
+
     async index(req: Request, res: Response) {
         try {
             const query = await Discount.findAll(

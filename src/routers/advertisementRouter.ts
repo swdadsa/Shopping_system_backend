@@ -14,6 +14,9 @@ class advertisementRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.advertisementController.unitTest(req, res))
+
         this.router.get("/index",
             (req, res) => this.advertisementController.index(req, res))
         this.router.post("/store",

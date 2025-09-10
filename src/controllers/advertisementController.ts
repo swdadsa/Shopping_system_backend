@@ -8,6 +8,14 @@ import fs from 'fs';
 export default class advertisement {
     public apiResponse = new apiResponse
 
+    unitTest(req: Request, res: Response) {
+        try {
+            res.send(this.apiResponse.response(true, 'advertisement unit test'))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+        }
+    }
+
     async index(req: Request, res: Response) {
         try {
             const query = await Advertisement.findAll({

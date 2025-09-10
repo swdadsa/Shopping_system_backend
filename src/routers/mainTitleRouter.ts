@@ -12,6 +12,9 @@ class mainTitleRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.mainTitleController.unitTest(req, res))
+
         this.router.get("/index",
             (req, res) => this.mainTitleController.index(req, res))
 

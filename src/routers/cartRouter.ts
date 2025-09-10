@@ -20,6 +20,9 @@ class cartRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.cartController.unitTest(req, res))
+
         this.router.post("/store",
             checkToken,
             validateCartStore,

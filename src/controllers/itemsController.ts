@@ -12,6 +12,14 @@ import dayjs from "dayjs";
 export default class items {
     public apiResponse = new apiResponse
 
+    unitTest(req: Request, res: Response) {
+        try {
+            res.send(this.apiResponse.response(true, 'items unit test'))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+        }
+    }
+
     async index(req: Request, res: Response) {
         try {
             let CACHE_KEY = "itemController:index";

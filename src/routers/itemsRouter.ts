@@ -15,6 +15,9 @@ class itemsRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.itmesController.unitTest(req, res))
+
         this.router.get("/index",
             validateItemIndex,
             (req, res) => this.itmesController.index(req, res))

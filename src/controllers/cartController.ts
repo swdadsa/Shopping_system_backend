@@ -13,6 +13,14 @@ import dayjs from "dayjs";
 export default class cart {
     public apiResponse = new apiResponse
 
+    unitTest(req: Request, res: Response) {
+        try {
+            res.send(this.apiResponse.response(true, 'cart unit test'))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+        }
+    }
+
     async store(req: Request, res: Response) {
         try {
             const amount = req.body.amount

@@ -23,6 +23,9 @@ class accountRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.accountController.unitTest(req, res))
+
         this.router.post("/signIn",
             validateSignIn,
             (req, res) => this.accountController.signIn(req, res))

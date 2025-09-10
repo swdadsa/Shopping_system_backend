@@ -14,6 +14,9 @@ class orderListRouter {
     }
 
     private routerEnable() {
+        this.router.get("/unitTest",
+            (req, res) => this.orderListController.unitTest(req, res))
+
         this.router.get("/index",
             checkToken,
             validateOrderListIndex,

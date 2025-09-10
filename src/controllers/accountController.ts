@@ -12,6 +12,14 @@ import Roles from "../models/Roles";
 export default class account {
     public apiResponse = new apiResponse
 
+    unitTest(req: Request, res: Response) {
+        try {
+            res.send(this.apiResponse.response(true, 'accroun unit test'))
+        } catch (error) {
+            res.status(500).json(this.apiResponse.response(false, error instanceof Error ? error.message : String(error)))
+        }
+    }
+
     async list(req: Request, res: Response) {
         try {
             const query = await User.findAll({
