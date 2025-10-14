@@ -84,15 +84,21 @@ export default class cart {
                         }
                     });
 
-                    let totalPrice = item.price * value.get('amount')
+                    let totalPrice = item.price
                     if (item.discounts.length > 0) {
+                        // 直接扣除數字
                         if (item.discounts[0].discountNumber !== null) {
-                            totalPrice -= (item.discounts[0].discountNumber * value.get('amount'))
+                            const discount = item.discounts[0].discountNumber * value.get('amount') // 折扣總額
+                            totalPrice *= value.get('amount') // 折扣前總額
+                            totalPrice -= discount // 折扣
                         }
-
+                        // 照百分比
                         if (item.discounts[0].discountPercent !== null) {
-                            totalPrice = Math.floor(totalPrice * (1 - item.discounts[0].discountPercent / 100));
+                            totalPrice = Math.floor(totalPrice * (1 - item.discounts[0].discountPercent / 100)); // 折扣後商品單價
+                            totalPrice *= value.get('amount')
                         }
+                    } else {
+                        totalPrice *= value.get('amount')
                     }
 
                     return {
@@ -174,14 +180,13 @@ export default class cart {
         }
     }
 
-    async submit(req: Request, res: Response) {
+    async serviceSubmit(body: any) {
         try {
-            const body = req.body
             let totalPrice = 0
 
             // create order list
             const createOrderList: any = await Order_list.create({
-                "order_unique_number": body.user_id + '-' + Date.now() + '-' + Math.round(Math.random() * 10000),
+                "order_unique_number": body.orderId,
                 "user_id": body.user_id,
                 "condition": 0
             })
@@ -216,6 +221,110 @@ export default class cart {
                         if (queryDiscount.discountPercent !== null && queryDiscount.discountPercent !== undefined) {
                             const price = Math.floor(Number(queryItem.price) * (1 - Number(queryDiscount.discountPercent) / 100))
                             totalPrice = totalPrice + (price * index.amount)
+                        }
+                    } else {
+                        if (queryItem != null) {
+                            totalPrice = totalPrice + Number(queryItem.price) * index.amount
+                        }
+                    }
+
+                    // create order list deatil
+                    await Order_list_detail.create({
+                        "order_list_id": createOrderList.id,
+                        "item_id": index.id,
+                        "amount": index.amount
+                    })
+
+                    // delete cart item 
+                    for (let i = 0; i < index.amount; i++) {
+                        // find one
+                        const findOneItemFromCart: any = await Cart.findOne({
+                            attributes: ["id"],
+                            where: {
+                                "user_id": body.user_id,
+                                "item_id": index.id
+                            }
+                        })
+                        // and delete
+                        if (findOneItemFromCart) {
+                            await Cart.destroy({
+                                where: {
+                                    "id": findOneItemFromCart.id
+                                }
+                            })
+                        }
+                    }
+                })
+
+                // waitting item promise
+                await Promise.all(itemPromises);
+
+                // update total price
+                const updateOrderList = await Order_list.update(
+                    {
+                        "total_price": Number(totalPrice)
+                    },
+                    {
+                        where: {
+                            "id": Number(createOrderList.id)
+                        }
+                    })
+
+                return 'success'
+            } else {
+                return 'error'
+            }
+        } catch (error) {
+            return error
+        }
+    }
+
+    async submit(req: Request, res: Response) {
+        try {
+            const body = req.body
+            let totalPrice = 0
+
+            // create order list
+            const createOrderList: any = await Order_list.create({
+                "order_unique_number": body.orderId,
+                "user_id": body.user_id,
+                "condition": 0
+            })
+
+            if (createOrderList) {
+                const itemPromises = body.item.map(async (index: any, key: any) => {
+                    // find item
+                    const queryItem = await Items.findOne({
+                        attributes: ["id", "name", "price"],
+                        where: {
+                            "id": index.id
+                        }
+                    })
+
+                    // check discount
+                    const date = dayjs().format('YYYY-MM-DD');
+                    const queryDiscount = await Discount.findOne({
+                        attributes: ["id", "startAt", "endAt", "discountNumber", "discountPercent"],
+                        where: {
+                            startAt: { [Op.lte]: date },
+                            endAt: { [Op.gte]: date },
+                            "item_id": index.id
+                        },
+                    });
+
+                    if (queryDiscount != null && queryItem != null) {
+                        if (queryDiscount.discountNumber !== null && queryDiscount.discountNumber !== undefined) {
+                            const price = (Number(queryItem.price) - Number(queryDiscount.discountNumber))
+                            totalPrice = totalPrice + (price * index.amount)
+                        }
+
+                        if (queryDiscount.discountPercent !== null && queryDiscount.discountPercent !== undefined) {
+                            const price = Math.floor(Number(queryItem.price) * (1 - Number(queryDiscount.discountPercent) / 100))
+                            totalPrice = totalPrice + (price * index.amount)
+                        }
+                    } else {
+                        if (queryItem != null) {
+                            totalPrice = totalPrice + Number(queryItem.price) * index.amount
                         }
                     }
 
