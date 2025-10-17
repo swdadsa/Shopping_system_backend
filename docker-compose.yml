@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      target: runner
+    image: erp-backend:latest
+    environment:
+      REDIS_URL: redis://redis:6379
+      SERVER_PORT: ${SERVER_PORT:-3000}
+    depends_on:
+      - redis
+    ports:
+      - "${SERVER_PORT:-3000}:3000"
+    volumes:
+      - ./.env:/app/.env:ro
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  redis-data:
