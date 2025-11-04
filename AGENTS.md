@@ -1,39 +1,34 @@
 ﻿# Repository Guidelines
 
 ## Project Structure & Module Organization
-- Core runtime entry at `app.ts`; compiled output lives in `dist/`.
-- Domain logic stays under `src/controllers`, `src/models`, `src/routers`, and supporting helpers in `src/utils`.
-- Sequelize migrations and seeders are in `src/migrations` and `src/seeders`; they rely on build-time configs in `config/` and `dist/config/`.
-- Static assets are served from `src/images`; Jest suites live in `src/tests` alongside shared test bootstrapping in `testServer.ts`.
-- `.env` and `.env.example` define environment keys; keep sensitive values local and document new ones in the example file.
+- `app.ts` bootstraps Express and ties Redis and router wiring.
+- `src/controllers/` implement request handlers; `src/routers/` map HTTP routes; `src/middlewares/` and `src/utils/` host shared logic.
+- `src/models/`, `src/migrations/`, `src/seeders/` follow Sequelize conventions for database lifecycle.
+- `config/` stores TypeScript configs compiled into `dist/config` after build; environment samples live in `.env.example`.
+- Build artifacts and coverage live in `dist/` and `coverage/`; keep `src/images/` as the source for static assets copied during build.
 
 ## Build, Test, and Development Commands
-- `npm run dev` starts the TypeScript server via Nodemon for iterative API work.
-- `npm run build` compiles with `tsc` and copies images into `dist/src/images`.
-- `npm start` executes the compiled server from `dist/app.js`; run after every build before packaging.
-- `npm test` runs Jest through `ts-jest`, emitting coverage reports into `coverage/`.
-- Database lifecycle: `npm run migrate`, `npm run migrate:undo`, `npm run seed`, and `npm run seed:undo` target the generated config in `dist/config/config.js`.
+- `npm run dev`: run `nodemon app.ts` for hot reload while iterating.
+- `npm run build`: compile TypeScript via `tsc` and copy images into `dist/`.
+- `npm start`: launch the compiled service from `dist/app.js`.
+- `npm test`: execute Jest with coverage; results stored under `coverage/`.
+- `npm run migrate` / `npm run migrate:undo` / `npm run seed`: drive Sequelize CLI against the built config in `dist/config/config.js`.
 
 ## Coding Style & Naming Conventions
-- Stick with TypeScript modules, double-quoted imports, and 4-space indentation as used across controllers.
-- Employ PascalCase for classes/model definitions and camelCase for functions, variables, and route handlers.
-- Keep response helpers in `src/response`; reuse shared logic from `src/utils` rather than reimplementing in controllers.
-- Avoid committing build artifacts outside `dist/`; keep DTOs and validation schemas colocated with their feature modules.
+- Source is TypeScript; keep imports using double quotes and terminate statements with semicolons, matching `src/controllers/accountController.ts`.
+- Prefer camelCase for functions and variables, PascalCase for classes and Sequelize models, and suffix files by role (e.g. `cartController.ts`, `user.service.ts`).
+- Maintain the existing indentation from controllers (two spaces inside blocks) and run `npx tsc` before committing to catch type regressions.
 
 ## Testing Guidelines
-- Place new Jest specs in `src/tests` and name them `<feature>.test.ts` to align with `route.test.ts`.
-- Use Supertest with `testServer.ts` for HTTP assertions; mock external integrations like Redis, payment, or SMTP where possible.
-- Maintain meaningful coverage; investigate drops reported in `npm test` before pushing.
-- Remove transient coverage artifacts or logs before committing.
+- Place unit and integration specs under `src/tests/`; name them `<feature>.spec.ts` to align with Jest discovery.
+- Use Supertest for HTTP flows; reset mock Redis connections inside `beforeEach`.
+- Always run `npm test` before pushing and verify `coverage/lcov-report` to monitor coverage changes.
 
 ## Commit & Pull Request Guidelines
-- Follow the existing subject style: `[YYYY-MM-DD]-short description` (example: `[2025-09-10]-route unit test added`).
-- Group related changes so each commit builds and passes tests; rerun `npm run build` when touching types or migrations.
-- Pull requests should link Jira/issues, outline behavior changes, note manual test results, and attach screenshots or API samples when endpoints shift.
-- Call out schema migrations and new env vars in the PR body so ops can stage them safely.
+- Follow the existing `[YYYY-MM-DD]-short action` prefix in commit subjects (`git log` shows recent examples); keep the rest sentence-cased and imperative.
+- Each pull request should include a change summary, impacted endpoints or jobs, database migration notes, linked tickets, and screenshots or curl examples when APIs change.
+- Mention required `.env` keys and confirm migrations ran locally by referencing the exact `npm run migrate` command.
 
 ## Security & Configuration Tips
-- Never commit secrets. Start from `.env.example`, add new keys there, and load them with `dotenv`.
-- Confirm `initRedis` starts cleanly in `app.ts` when introducing cache-dependent features.
-- Revisit Helmet and CORS settings before exposing new routes or static directories.
-- Audit third-party packages for license and security posture before merging.
+- Never commit `.env`; mirror new keys into `.env.example` with safe defaults.
+- Ensure Redis and database connection settings remain environment-driven before enabling new features.

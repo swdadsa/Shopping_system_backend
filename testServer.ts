@@ -1,17 +1,19 @@
-import express, { Express } from 'express';
-import { defaultRoute } from './src/routers/router';
+import express, { Express } from "express";
 import helmet from "helmet";
-import dotenv from 'dotenv';
-import cors from 'cors';
-import { initRedis } from './src/middlewares/redisClient';
+import cors from "cors";
+import dotenv from "dotenv";
+import { defaultRoute } from "./src/routers/router";
+import { getRedisStub } from "./src/tests/helpers/redisStub";
 
-dotenv.config();
+dotenv.config({ path: process.env.NODE_ENV === "test" ? ".env.test" : undefined });
 
 const app: Express = express();
 
+app.use(cors());
+app.use(helmet());
 
-// 使用 API 路由
+app.locals.redis = getRedisStub();
+
 app.use("/api", defaultRoute);
 
-
-export default app;  // export 出去，給測試用
+export default app;
