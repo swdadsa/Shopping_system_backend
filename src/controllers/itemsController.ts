@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { apiResponse } from "../response/apiResponse";
-import fs from 'fs';
-import path from 'path';
+import path from "path";
 import Items from "../models/Items";
 import Item_images from "../models/Item_images";
 import { Op } from "sequelize";
 import Discount from "../models/Discount";
 import { getCache, setCache } from "../utils/redisCache";
 import dayjs from "dayjs";
+import { deleteObjectsFromS3, uploadBufferToS3 } from "../utils/s3Client";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 export default class items {
     public apiResponse = new apiResponse
@@ -81,15 +82,25 @@ export default class items {
                 });
 
                 // transform
-                const transformedData = query.map((item: any) => {
-                    const images = item.images ?? [];
-                    const fixPath = images.map((values: any) => process.env.APP_URL + values.path);
+                const transformedData = await Promise.all(
+                    query.map(async (item: any) => {
+                        const images = item.images ?? [];
+                        let imageUrl: string | null = null;
 
-                    return {
-                        ...item.toJSON(),
-                        Item_images: fixPath[0] ?? null
-                    };
-                });
+                        for (const current of images) {
+                            const resolved = await resolveImageUrl(current.path);
+                            if (resolved) {
+                                imageUrl = resolved;
+                                break;
+                            }
+                        }
+
+                        return {
+                            ...item.toJSON(),
+                            Item_images: imageUrl
+                        };
+                    })
+                );
                 if (transformedData) {
                     await setCache(redis, CACHE_KEY, transformedData, CACHE_TTL);
                 }
@@ -111,40 +122,35 @@ export default class items {
                 "price": req.body.price,
                 "storage": req.body.storage,
                 "description": req.body.description
-            })
+            });
 
-            if (!req.files || !Array.isArray(req.files)) {
-                res.status(400).send(this.apiResponse.response(false, 'No image uploaded'));
+            if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+                res.status(400).send(this.apiResponse.response(false, "No image uploaded"));
+                return;
             }
-            const files: any = req.files;
-            if (req.files) {
-                // Rename each file in `req.files`
-                await Promise.all(
-                    files.map(async (file: any, index: number) => {
-                        const oldPath = file.path;
-                        const newFileName = `image_${index + 1}_${Date.now()}${path.extname(file.originalname)}`;
-                        const newPath = './src/images/items/' + newFileName;
 
-                        // Rename the file
-                        await new Promise((resolve, reject) => {
-                            fs.rename(oldPath, newPath, (err) => {
-                                if (err) {
-                                    reject(err)
-                                } else {
-                                    resolve(newFileName)
-                                };
-                            });
-                        });
+            const files = req.files as Express.Multer.File[];
 
-                        // Step 4: Create a record in Item_images for each image
-                        await Item_images.create({
-                            item_id: createItem.id,
-                            order: index + 1,
-                            path: 'images/items/' + newFileName, // Save the new path to the database
-                        });
-                    })
-                );
-            }
+            await Promise.all(
+                files.map(async (file, index) => {
+                    const extension = path.extname(file.originalname) ?? "";
+                    const uniqueSuffix = `${Date.now()}-${index}-${Math.round(Math.random() * 1e9)}`;
+                    const key = `items/${createItem.id}-${uniqueSuffix}${extension}`;
+
+                    const uploadResult = await uploadBufferToS3({
+                        buffer: file.buffer,
+                        key,
+                        contentType: file.mimetype,
+                    });
+
+                    await Item_images.create({
+                        item_id: createItem.id,
+                        order: index + 1,
+                        path: uploadResult.key,
+                    });
+                })
+            );
+
             res.send(this.apiResponse.response(true, createItem));
         } catch (error) {
             res.status(500).send(this.apiResponse.response(false, 'Unexpected error:' + error));
@@ -171,36 +177,32 @@ export default class items {
                 });
 
                 if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-                    const files: any = req.files;
+                    const files = req.files as Express.Multer.File[];
 
-                    // Find and delete old images in Item_images and file system
                     const oldImages = await Item_images.findAll({ where: { item_id: item.id } });
-                    await Promise.all(oldImages.map(async (image: any) => {
-                        const imagePath = './src/' + image.path;
-                        await fs.promises.unlink(imagePath); // Delete image file
-                        await image.destroy(); // Remove record from Item_images table
-                    }));
+                    const oldKeys = oldImages
+                        .map((image: any) => image.path)
+                        .filter((value: string | null): value is string => typeof value === "string" && value.length > 0);
 
-                    // Save new images and update Item_images
+                    await deleteObjectsFromS3(oldKeys);
+                    await Item_images.destroy({ where: { item_id: item.id } });
+
                     await Promise.all(
-                        files.map(async (file: any, index: number) => {
-                            const oldPath = file.path;
-                            const newFileName = `image_${index + 1}_${Date.now()}${path.extname(file.originalname)}`;
-                            const newPath = './src/images/items/' + newFileName;
+                        files.map(async (file, index) => {
+                            const extension = path.extname(file.originalname) ?? "";
+                            const uniqueSuffix = `${Date.now()}-${index}-${Math.round(Math.random() * 1e9)}`;
+                            const key = `items/${item.id}-${uniqueSuffix}${extension}`;
 
-                            // Rename and save file to the target directory
-                            await new Promise((resolve, reject) => {
-                                fs.rename(oldPath, newPath, (err) => {
-                                    if (err) reject(err);
-                                    else resolve(newFileName);
-                                });
+                            const uploadResult = await uploadBufferToS3({
+                                buffer: file.buffer,
+                                key,
+                                contentType: file.mimetype,
                             });
 
-                            // Save image details to the Item_images table
                             await Item_images.create({
                                 item_id: item.id,
                                 order: index + 1,
-                                path: 'images/items/' + newFileName // Save new path in the database
+                                path: uploadResult.key,
                             });
                         })
                     );
@@ -256,11 +258,16 @@ export default class items {
                 // Check if query returned a result
                 if (query && query.Item_images) {
                     // Convert Sequelize instances to plain objects
-                    query.Item_images = query.Item_images.map((image: any) => {
+                    query.Item_images = await Promise.all(query.Item_images.map(async (image: any) => {
                         const plainImage = image.get({ plain: true }); // Convert to plain object
-                        plainImage.path = `${process.env.APP_URL}${plainImage.path}`; // Modify path
+                        const resolvedPath = await resolveImageUrl(plainImage.path);
+                        if (resolvedPath) {
+                            plainImage.path = resolvedPath; // Modify path
+                        } else {
+                            plainImage.path = null;
+                        }
                         return plainImage;
-                    });
+                    }));
                 }
 
                 // Set cache

@@ -9,6 +9,7 @@ import Order_list_detail from "../models/Order_list_detail";
 import Discount from "../models/Discount";
 import { Op } from "sequelize";
 import dayjs from "dayjs";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 export default class cart {
     public apiResponse = new apiResponse
@@ -109,7 +110,7 @@ export default class cart {
                         storage: item.storage,
                         amount: value.get('amount'),
                         discount: item.discounts ?? [],
-                        path: process.env.APP_URL + item.images[0].path
+                        path: await resolveImageUrl(item.images?.[0]?.path)
                     };
                 })
             );

@@ -1,20 +1,11 @@
-import multer from "multer"
+import multer from "multer";
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './src/images/temps')
-    },
-    filename: function (req, file, cb) {
-        cb(null, + Date.now() + '-' + file.originalname)
-    }
-})
+const memoryStorage = multer.memoryStorage();
 
-
-const upload = multer({ storage: storage })
-
+const upload = multer({ storage: memoryStorage });
 
 // Middleware for single image upload
-export const uploadSingleImage = upload.single('image');
+export const uploadSingleImage = upload.single("image");
 
 // Middleware for multiple image uploads (optional)
-export const uploadMultipleImages = upload.array('images', 10); // Limit to 5 images at a time (adjust as needed)
+export const uploadMultipleImages = upload.array("images", 10); // Limit to 10 images at a time (adjust as needed)

@@ -6,6 +6,7 @@ import Item_images from "../models/Item_images";
 import Item from "../models/Items";
 import { Op } from "sequelize";
 import Discount from "../models/Discount";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 
 export default class orderList {
@@ -60,7 +61,14 @@ export default class orderList {
             const transPath = await Promise.all(
                 queryFindOrderListDetail.map(async (index: any, key: any) => {
                     const images = index.item?.images ?? [];
-                    const path = images.map((img: any) => process.env.APP_URL + img.path);
+                    let imageUrl: string | null = null;
+                    for (const image of images) {
+                        const resolved = await resolveImageUrl(image.path);
+                        if (resolved) {
+                            imageUrl = resolved;
+                            break;
+                        }
+                    }
 
                     const item = index.item ?? {};
                     const price = item.price ?? 0;
@@ -82,7 +90,7 @@ export default class orderList {
                         amount: index.amount,
                         price: price,
                         name: name,
-                        Item_images: path[0] ?? null,
+                        Item_images: imageUrl,
                         discount: queryDiscount ?? []
                     }
                 })
