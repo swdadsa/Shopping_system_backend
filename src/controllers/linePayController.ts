@@ -112,8 +112,8 @@ export default class linePayController {
                     },
                 ],
                 redirectUrls: {
-                    confirmUrl: `http://localhost:3000/api/linepay/confirm?payload=${payload}`,
-                    cancelUrl: 'http://localhost:3000/api/linepay/cancel',
+                    confirmUrl: `${process.env.APP_URL}/api/linepay/confirm?payload=${payload}`,
+                    cancelUrl: `${process.env.APP_URL}/api/linepay/cancel`,
                 },
             };
 
@@ -157,9 +157,9 @@ export default class linePayController {
                 const Cart = new cart()
                 // 建立訂單
                 await Cart.serviceSubmit(decodePayload)
-                res.redirect(`http://localhost:5173/payment/result?transactionId=${transactionId}`);
+                res.redirect(`${process.env.FRONTEND_URL}/payment/result?transactionId=${transactionId}`);
             } else {
-                res.redirect(`http://localhost:5173/payment/result?transactionId=${transactionId}`);
+                res.redirect(`${process.env.FRONTEND_URL}/payment/result?transactionId=${transactionId}`);
             }
 
         } catch (error) {

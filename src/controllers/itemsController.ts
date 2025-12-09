@@ -256,9 +256,9 @@ export default class items {
                 })
 
                 // Check if query returned a result
-                if (query && query.Item_images) {
+                if (query && query.images) {
                     // Convert Sequelize instances to plain objects
-                    query.Item_images = await Promise.all(query.Item_images.map(async (image: any) => {
+                    query.images = await Promise.all(query.images.map(async (image: any) => {
                         const plainImage = image.get({ plain: true }); // Convert to plain object
                         const resolvedPath = await resolveImageUrl(plainImage.path);
                         if (resolvedPath) {
